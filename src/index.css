@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-page: #0c081e;
+    --text-primary: #f5f5f6;
+    --text-secondary: #9d9ea4;
+    --card-bg: rgba(20, 16, 44, 0.85);
+    --card-border: rgba(103, 61, 230, 0.25);
+    --nav-bg: rgba(12, 8, 30, 0.85);
+    --h-brand-600: #673de6;
+    --h-brand-500: #7b66ff;
+    --h-brand-700: #471ea7;
+  }
+
+  html.light {
+    --bg-page: #f8f9fa;
+    --text-primary: #18181a;
+    --text-secondary: #58585e;
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --card-border: #dedee2;
+    --nav-bg: rgba(255, 255, 255, 0.88);
+  }
+}
+
+body {
+  font-family: 'DM Sans', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html.light body {
+  background-color: #f8f9fa;
+  color: #18181a;
+}
+
+html.dark body {
+  background-color: #0c081e;
+  color: #f5f5f6;
+}
+
+/* Custom Scrollbar styled after Hostinger */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0c081e;
+}
+
+html.light ::-webkit-scrollbar-track {
+  background: #f8f9fa;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #251951;
+  border-radius: 4px;
+}
+
+html.light ::-webkit-scrollbar-thumb {
+  background: #dedee2;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #673de6;
+}
+
+

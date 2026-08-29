@@ -1,0 +1,6 @@
+{
+  "name": "Tech Dev Portfolio & Admin",
+  "description": "Portfólio profissional e moderno para desenvolvedor de sites, sistemas, aplicativos e soluções com Inteligência Artificial, com painel administrativo integrado.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
