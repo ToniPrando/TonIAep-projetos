@@ -186,7 +186,9 @@ export const About: React.FC = () => {
                 <span className="text-xs font-mono text-[#7b66ff] uppercase tracking-wider font-semibold">Especialização</span>
                 <span className={`text-xs px-2 py-0.5 rounded border ${
                   isDark ? 'bg-[#251951] text-[#bcbdff] border-[#673de6]/40' : 'bg-purple-50 text-[#673de6] border-purple-200'
-                }`}>Full Stack & IA</span>
+                }`}>
+                  Full Stack & IA
+                </span>
               </div>
               <div className={`text-lg font-bold mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>Engenharia de Ponta a Ponta</div>
               <p className={`text-xs leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>

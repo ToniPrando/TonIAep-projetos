@@ -111,7 +111,7 @@ export const Logo: React.FC<LogoProps> = ({ size = 'md', className = '', showTex
               STUDIO
             </span>
           </div>
-          <span className={`font-mono text-cyan-400/80 tracking-wider uppercase font-semibold ${currentSize.sub}`}>
+          <span className={`font-mono text-cyan-400/80 tracking-wider uppercase font-semibold flex items-center gap-1.5 ${currentSize.sub}`}>
             Sistemas • Apps • IA
           </span>
         </div>

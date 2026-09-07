@@ -133,7 +133,16 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, onOpenAdmin }) => 
                         : 'text-slate-700 bg-white hover:bg-slate-100 hover:text-slate-950 border border-[#dedee2] shadow-sm'
                   }`}
                 >
-                  <span>{cat.label}</span>
+                  <span>
+                    {cat.value === 'IA' ? (
+                      <span className="inline-flex items-center gap-1.5">
+                        <Sparkles className="w-3 h-3 text-[#7b66ff]" />
+                        <span>IA & Agentes</span>
+                      </span>
+                    ) : (
+                      cat.label
+                    )}
+                  </span>
                   <span
                     className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full ${
                       isActive 

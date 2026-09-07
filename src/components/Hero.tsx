@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { USER_LOGO_URL, USER_LOGO_FALLBACK, USER_LOGO_LOCAL } from './Logo';
 import { useTheme } from '../context/ThemeContext';
+import { SupercomputerBackground } from './SupercomputerBackground';
 
 export const Hero: React.FC = () => {
   const { isDark } = useTheme();
@@ -28,20 +29,18 @@ export const Hero: React.FC = () => {
   };
 
   return (
-    <section id="inicio" className="relative min-h-[90vh] flex flex-col items-center justify-center pt-28 pb-16 overflow-hidden">
-      {/* Dynamic Background Grid & Ambient Glows */}
-      <div className={`absolute inset-0 [background-size:24px_24px] pointer-events-none ${
+    <section id="inicio" className="relative min-h-[95vh] flex flex-col items-center justify-center pt-24 pb-16 overflow-hidden isolate">
+      {/* Supercomputer Silhouette Atmospheric Background */}
+      <SupercomputerBackground />
+
+      {/* Dynamic Subtle Tech Grid */}
+      <div className={`absolute inset-0 [background-size:28px_28px] pointer-events-none ${
         isDark 
-          ? 'bg-[radial-gradient(#1e293b_1px,transparent_1px)] opacity-25' 
-          : 'bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] opacity-60'
-      }`} />
-      
-      {/* Subtle Background Glow */}
-      <div className={`absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] rounded-full blur-3xl pointer-events-none ${
-        isDark ? 'bg-[#673de6]/15' : 'bg-[#673de6]/5'
+          ? 'bg-[radial-gradient(#1e293b_1px,transparent_1px)] opacity-15' 
+          : 'bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] opacity-30'
       }`} />
 
-      <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex flex-col items-center">
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex flex-col items-center">
         
         {/* CENTERPIECE: Translucent Logo */}
         <motion.div
@@ -59,17 +58,19 @@ export const Hero: React.FC = () => {
           
           {/* Clean Translucent Logo Element */}
           <div className="relative z-10 flex items-center justify-center p-4 w-full">
-            <img
-              src={logoSrc}
-              alt="Logo Oficial"
-              className={`w-[75vw] max-w-[500px] h-auto max-h-[44vh] sm:max-h-[48vh] object-contain transition-all duration-500 transform hover:scale-[1.02] ${
-                isDark 
-                  ? 'opacity-95 hover:opacity-100 filter drop-shadow-[0_4px_16px_rgba(0,0,0,0.35)] hover:drop-shadow-[0_6px_24px_rgba(103,61,230,0.3)]' 
-                  : 'opacity-95 hover:opacity-100 filter drop-shadow-[0_4px_16px_rgba(0,0,0,0.12)] hover:drop-shadow-[0_6px_20px_rgba(103,61,230,0.2)]'
-              }`}
-              referrerPolicy="no-referrer"
-              onError={handleLogoError}
-            />
+            <div className="relative inline-flex items-center justify-center w-[75vw] max-w-[500px] max-h-[44vh] sm:max-h-[48vh] aspect-[612/408] transition-all duration-500 transform hover:scale-[1.02]">
+              <img
+                src={logoSrc}
+                alt="Logo Oficial"
+                className={`w-full h-full object-contain transition-all duration-500 ${
+                  isDark 
+                    ? 'opacity-95 hover:opacity-100 filter drop-shadow-[0_4px_16px_rgba(0,0,0,0.35)] hover:drop-shadow-[0_6px_24px_rgba(103,61,230,0.3)]' 
+                    : 'opacity-95 hover:opacity-100 filter drop-shadow-[0_4px_16px_rgba(0,0,0,0.12)] hover:drop-shadow-[0_6px_20px_rgba(103,61,230,0.2)]'
+                }`}
+                referrerPolicy="no-referrer"
+                onError={handleLogoError}
+              />
+            </div>
           </div>
         </motion.div>
 
@@ -93,9 +94,9 @@ export const Hero: React.FC = () => {
             </span>
             <span className="tracking-wide font-medium">Disponível para novos projetos</span>
             <span className={isDark ? 'text-slate-600' : 'text-slate-300'}>|</span>
-            <span className={`flex items-center gap-1 ${isDark ? 'text-[#bcbdff]' : 'text-[#673de6]'}`}>
-              <Sparkles className="w-3 h-3 text-[#7b66ff]" />
-              Full Stack & IA
+            <span className={`flex items-center gap-1.5 ${isDark ? 'text-[#bcbdff]' : 'text-[#673de6]'}`}>
+              <Sparkles className="w-3.5 h-3.5 text-[#7b66ff]" />
+              <span className="font-medium">Full Stack & IA</span>
             </span>
           </motion.div>
 
@@ -127,7 +128,7 @@ export const Hero: React.FC = () => {
             Especializado na criação de <strong className={isDark ? 'text-[#bcbdff] font-semibold' : 'text-[#673de6] font-semibold'}>sites modernos</strong>,{' '}
             <strong className={isDark ? 'text-[#9d99ff] font-semibold' : 'text-[#471ea7] font-semibold'}>sistemas web robustos</strong>,{' '}
             <strong className={isDark ? 'text-cyan-300 font-semibold' : 'text-cyan-700 font-semibold'}>aplicativos móveis fluidos</strong> e soluções escaláveis potencializadas por{' '}
-            <strong className={isDark ? 'text-[#7b66ff] font-semibold' : 'text-[#673de6] font-semibold'}>Inteligência Artificial</strong>.
+            <strong className={isDark ? 'text-[#7b66ff] font-semibold' : 'text-[#673de6] font-semibold'}>Inteligência Artificial (IA)</strong>.
           </motion.p>
 
           {/* Primary Action Buttons */}
