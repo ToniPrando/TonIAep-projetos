@@ -4,7 +4,6 @@ import {
   Menu, 
   X, 
   Sparkles, 
-  ShieldCheck, 
   ArrowUpRight, 
   Laptop, 
   FolderKanban, 
@@ -15,11 +14,11 @@ import {
 import { useTheme } from '../context/ThemeContext';
 
 interface NavbarProps {
-  onOpenAdmin: () => void;
+  onOpenAdmin?: () => void;
   isSupabaseActive?: boolean;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, isSupabaseActive = false }) => {
+export const Navbar: React.FC<NavbarProps> = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('inicio');
@@ -30,7 +29,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, isSupabaseActive = 
       setIsScrolled(window.scrollY > 20);
 
       // Simple active section detection
-      const sections = ['inicio', 'sobre', 'projetos', 'tecnologias', 'servicos', 'contato'];
+      const sections = ['inicio', 'sobre', 'projetos', 'skills', 'tecnologias', 'servicos', 'contato'];
       const scrollPosition = window.scrollY + 200;
 
       for (const sectionId of sections) {
@@ -39,7 +38,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, isSupabaseActive = 
           const top = el.offsetTop;
           const height = el.offsetHeight;
           if (scrollPosition >= top && scrollPosition < top + height) {
-            setActiveSection(sectionId);
+            setActiveSection(sectionId === 'tecnologias' ? 'skills' : sectionId);
             break;
           }
         }
@@ -54,7 +53,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, isSupabaseActive = 
     { label: 'Início', href: '#inicio', id: 'inicio', icon: Sparkles },
     { label: 'Sobre Mim', href: '#sobre', id: 'sobre', icon: User },
     { label: 'Projetos', href: '#projetos', id: 'projetos', icon: FolderKanban },
-    { label: 'Tecnologias', href: '#tecnologias', id: 'tecnologias', icon: Cpu },
+    { label: 'Skills', href: '#skills', id: 'skills', icon: Cpu },
     { label: 'Serviços', href: '#servicos', id: 'servicos', icon: Laptop },
     { label: 'Contato', href: '#contato', id: 'contato', icon: Send },
   ];
@@ -127,24 +126,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, isSupabaseActive = 
 
           {/* Desktop Right CTA Actions */}
           <div className="hidden sm:flex items-center gap-2.5">
-            {/* Admin Panel Button */}
-            <button
-              onClick={onOpenAdmin}
-              className={`group relative flex items-center gap-2 px-3.5 py-1.5 rounded-lg border text-xs font-mono transition-all duration-200 ${
-                isDark
-                  ? 'bg-[#14102c] hover:bg-[#251951] border-[#332a68] hover:border-[#7b66ff]/50 text-slate-300 hover:text-[#bcbdff]'
-                  : 'bg-slate-100 hover:bg-slate-200/80 border-slate-300 hover:border-[#673de6] text-slate-700 hover:text-[#673de6]'
-              }`}
-              title="Acessar Painel Administrativo de Projetos"
-              id="admin-navbar-btn"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-[#7b66ff] group-hover:rotate-12 transition-transform" />
-              <span>Admin</span>
-              {isSupabaseActive && (
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" title="Supabase Conectado" />
-              )}
-            </button>
-
             {/* Direct Contact Button */}
             <a
               href="#contato"
@@ -156,17 +137,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, isSupabaseActive = 
             </a>
           </div>
 
-          {/* Mobile Actions: Admin + Menu Button */}
+          {/* Mobile Actions: Menu Button */}
           <div className="flex sm:hidden items-center gap-2">
-            <button
-              onClick={onOpenAdmin}
-              className={`p-2 rounded-lg border ${
-                isDark ? 'bg-[#14102c] border-[#332a68] text-slate-300' : 'bg-slate-100 border-slate-300 text-slate-700'
-              }`}
-              aria-label="Abrir admin"
-            >
-              <ShieldCheck className="w-4 h-4 text-[#7b66ff]" />
-            </button>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className={`p-2 rounded-lg border focus:outline-none ${
@@ -221,19 +193,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdmin, isSupabaseActive = 
             </nav>
 
             <div className={`pt-4 border-t flex flex-col gap-3 ${isDark ? 'border-[#332a68]' : 'border-slate-200'}`}>
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onOpenAdmin();
-                }}
-                className={`flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border text-sm font-mono ${
-                  isDark ? 'bg-[#14102c] border-[#332a68] text-[#bcbdff]' : 'bg-slate-100 border-slate-300 text-[#673de6]'
-                }`}
-              >
-                <ShieldCheck className="w-4 h-4" />
-                <span>Painel Administrativo</span>
-              </button>
-
               <a
                 href="#contato"
                 onClick={(e) => scrollToSection(e, '#contato')}

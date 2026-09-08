@@ -2,7 +2,7 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Project } from '../types';
 import { INITIAL_PROJECTS } from '../data/initialData';
 
-const LOCAL_STORAGE_PROJECTS_KEY = 'tech_portfolio_projects_v2';
+const LOCAL_STORAGE_PROJECTS_KEY = 'tech_portfolio_projects_v3';
 const LOCAL_STORAGE_SUPABASE_CONFIG_KEY = 'tech_portfolio_supabase_config_v2';
 
 export interface SupabaseSettings {
@@ -105,6 +105,24 @@ CREATE POLICY "Authenticated Delete"
 
 -- 5. Bucket de imagens (opcional)
 -- Crie um bucket público chamado 'project-images' no painel Supabase Storage.
+
+-- 6. Tabela para registro de acessos em tempo real (opcional)
+CREATE TABLE IF NOT EXISTS public.site_visits (
+  id BIGSERIAL PRIMARY KEY,
+  visited_at TIMESTAMPTZ DEFAULT NOW(),
+  path TEXT,
+  user_agent TEXT
+);
+
+ALTER TABLE public.site_visits ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Public Insert Visits"
+  ON public.site_visits FOR INSERT
+  WITH CHECK (true);
+
+CREATE POLICY "Public Read Visits"
+  ON public.site_visits FOR SELECT
+  USING (true);
 `;
 
 // Fetch all projects (with cloud sync and local cache fallback)

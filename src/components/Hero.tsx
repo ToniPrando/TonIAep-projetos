@@ -124,8 +124,8 @@ export const Hero: React.FC = () => {
               isDark ? 'text-slate-300' : 'text-slate-600'
             }`}
           >
-            Desenvolvedor Full Stack focado em tecnologia de ponta, alta performance e inovação.
-            Especializado na criação de <strong className={isDark ? 'text-[#bcbdff] font-semibold' : 'text-[#673de6] font-semibold'}>sites modernos</strong>,{' '}
+            Desenvolvedor UI Design, User Experience Design, especializado na criação de{' '}
+            <strong className={isDark ? 'text-[#bcbdff] font-semibold' : 'text-[#673de6] font-semibold'}>sites modernos</strong>,{' '}
             <strong className={isDark ? 'text-[#9d99ff] font-semibold' : 'text-[#471ea7] font-semibold'}>sistemas web robustos</strong>,{' '}
             <strong className={isDark ? 'text-cyan-300 font-semibold' : 'text-cyan-700 font-semibold'}>aplicativos móveis fluidos</strong> e soluções escaláveis potencializadas por{' '}
             <strong className={isDark ? 'text-[#7b66ff] font-semibold' : 'text-[#673de6] font-semibold'}>Inteligência Artificial (IA)</strong>.

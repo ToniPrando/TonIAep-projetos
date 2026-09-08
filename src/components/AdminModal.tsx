@@ -21,9 +21,13 @@ import {
   Github,
   Tag,
   Search,
-  Eye
+  Eye,
+  Activity,
+  BarChart3,
+  RefreshCw
 } from 'lucide-react';
 import { Project, ProjectCategory } from '../types';
+import { fetchVisitStats, VisitStats } from '../lib/visits';
 import { 
   getSupabaseClient, 
   getSupabaseSettings, 
@@ -55,8 +59,14 @@ export const AdminModal: React.FC<AdminModalProps> = ({
   const [authError, setAuthError] = useState('');
   const [isAuthLoading, setIsAuthLoading] = useState(false);
 
-  // Active view tab: 'projects' | 'edit' | 'supabase'
-  const [activeTab, setActiveTab] = useState<'projects' | 'edit' | 'supabase'>('projects');
+  // Active view tab: 'projects' | 'edit' | 'supabase' | 'visits'
+  const [activeTab, setActiveTab] = useState<'projects' | 'edit' | 'supabase' | 'visits'>('projects');
+
+  // Visits Counter State
+  const [visitStats, setVisitStats] = useState<VisitStats | null>(null);
+  const [customCounterInput, setCustomCounterInput] = useState('');
+  const [counterStatusMsg, setCounterStatusMsg] = useState<string | null>(null);
+  const [isCounterLoading, setIsCounterLoading] = useState(false);
 
   // Search in admin table
   const [adminSearch, setAdminSearch] = useState('');
@@ -115,12 +125,12 @@ export const AdminModal: React.FC<AdminModalProps> = ({
       }
     }
 
-    // 2. Local fallback master access for immediate admin management (passcode "admin123" or any 6+ char password)
-    if (loginPassword === 'admin123' || loginPassword.length >= 6) {
+    // 2. Master password verification for administrative access
+    if (loginPassword.trim() === 'Estela*12') {
       setIsAuthenticated(true);
       setIsAuthLoading(false);
     } else {
-      setAuthError('Credenciais incorretas. Verifique seu e-mail e senha de acesso.');
+      setAuthError('Senha de acesso incorreta. Digite a senha correta de administrador.');
       setIsAuthLoading(false);
     }
   };
@@ -279,6 +289,76 @@ export const AdminModal: React.FC<AdminModalProps> = ({
     }
   };
 
+  const loadVisits = async () => {
+    setIsCounterLoading(true);
+    try {
+      const stats = await fetchVisitStats();
+      setVisitStats(stats);
+      setCustomCounterInput(stats.total.toString());
+    } catch {
+      // ignore
+    } finally {
+      setIsCounterLoading(false);
+    }
+  };
+
+  const handleUpdateCounter = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const val = parseInt(customCounterInput, 10);
+    if (isNaN(val) || val < 0) {
+      setCounterStatusMsg('Por favor, digite um número inteiro válido.');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/visits/set', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ newTotal: val }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setVisitStats((prev) => (prev ? { ...prev, total: data.total } : { total: data.total, today: 1, source: 'server' }));
+        setCounterStatusMsg(`Contador atualizado para ${data.total.toLocaleString('pt-BR')} com sucesso!`);
+        localStorage.setItem('portfolio_access_counter_total', data.total.toString());
+      } else {
+        localStorage.setItem('portfolio_access_counter_total', val.toString());
+        setVisitStats((prev) => (prev ? { ...prev, total: val } : { total: val, today: 1, source: 'local' }));
+        setCounterStatusMsg(`Contador atualizado para ${val.toLocaleString('pt-BR')}.`);
+      }
+    } catch {
+      localStorage.setItem('portfolio_access_counter_total', val.toString());
+      setVisitStats((prev) => (prev ? { ...prev, total: val } : { total: val, today: 1, source: 'local' }));
+      setCounterStatusMsg(`Contador atualizado para ${val.toLocaleString('pt-BR')}.`);
+    }
+
+    setTimeout(() => setCounterStatusMsg(null), 4000);
+  };
+
+  const handleTestVisit = async () => {
+    try {
+      const res = await fetch('/api/visits/hit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: '/admin-test' }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setVisitStats({
+          total: data.total,
+          today: data.today,
+          lastVisitedAt: data.lastVisitedAt,
+          source: 'server',
+        });
+        setCustomCounterInput(data.total.toString());
+        setCounterStatusMsg(`+1 Acesso registrado com sucesso! Novo total: ${data.total}`);
+      }
+    } catch {
+      setCounterStatusMsg('Erro ao registrar acesso no servidor.');
+    }
+    setTimeout(() => setCounterStatusMsg(null), 3000);
+  };
+
   const filteredProjects = projects.filter((p) => {
     const q = adminSearch.toLowerCase().trim();
     if (!q) return true;
@@ -375,12 +455,11 @@ export const AdminModal: React.FC<AdminModalProps> = ({
               <form onSubmit={handleLogin} className="space-y-4">
                 <div>
                   <label className="block text-xs font-mono text-slate-300 mb-1">
-                    E-mail do Administrador
+                    E-mail de Acesso (opcional)
                   </label>
                   <input
                     type="email"
-                    required
-                    placeholder="Digite seu e-mail de acesso"
+                    placeholder="antonioestefanoprando@gmail.com"
                     value={loginEmail}
                     onChange={(e) => setLoginEmail(e.target.value)}
                     className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
@@ -389,15 +468,15 @@ export const AdminModal: React.FC<AdminModalProps> = ({
 
                 <div>
                   <label className="block text-xs font-mono text-slate-300 mb-1">
-                    Senha de Acesso
+                    Senha de Administrador
                   </label>
                   <input
                     type="password"
                     required
-                    placeholder="***********"
+                    placeholder="Digite a senha de acesso"
                     value={loginPassword}
                     onChange={(e) => setLoginPassword(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 tracking-widest font-mono"
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 font-mono"
                   />
                 </div>
 
@@ -440,6 +519,21 @@ export const AdminModal: React.FC<AdminModalProps> = ({
                   >
                     <Database className="w-3.5 h-3.5" />
                     <span>Supabase Cloud & SQL</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setActiveTab('visits');
+                      loadVisits();
+                    }}
+                    className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition-all ${
+                      activeTab === 'visits'
+                        ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    }`}
+                  >
+                    <Activity className="w-3.5 h-3.5 text-[#7b66ff]" />
+                    <span>Acessos Reais</span>
                   </button>
                 </div>
 
@@ -962,6 +1056,148 @@ export const AdminModal: React.FC<AdminModalProps> = ({
                     <pre className="bg-[#070b14] p-4 rounded-xl border border-slate-800/80 text-[11px] font-mono text-cyan-300/90 overflow-x-auto max-h-52">
                       {SUPABASE_SETUP_SQL}
                     </pre>
+                  </div>
+                </div>
+              )}
+
+              {/* View 4: Real Visits & Analytics */}
+              {activeTab === 'visits' && (
+                <div className="space-y-6">
+                  {/* Top Header Card */}
+                  <div className="p-5 rounded-2xl bg-gradient-to-r from-[#14102c] via-[#1c183a] to-[#14102c] border border-[#332a68] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 rounded-xl bg-[#673de6]/20 text-[#7b66ff] border border-[#673de6]/30">
+                        <Activity className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-bold text-white flex items-center gap-2">
+                          <span>Contador de Acessos Real</span>
+                          <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            Ativo no Servidor
+                          </span>
+                        </h3>
+                        <p className="text-xs text-slate-300 mt-0.5">
+                          Estatísticas de visitas em tempo real registradas no backend persistente.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={loadVisits}
+                        disabled={isCounterLoading}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-xs font-mono text-slate-300 border border-slate-700 transition-all"
+                      >
+                        <RefreshCw className={`w-3.5 h-3.5 text-[#7b66ff] ${isCounterLoading ? 'animate-spin' : ''}`} />
+                        <span>Atualizar</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleTestVisit}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#673de6] hover:bg-[#7b66ff] text-xs font-mono font-semibold text-white transition-all shadow-sm"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>+1 Acesso Teste</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {counterStatusMsg && (
+                    <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/30 text-xs font-mono text-purple-300 flex items-center gap-2">
+                      <Check className="w-4 h-4 text-purple-400" />
+                      <span>{counterStatusMsg}</span>
+                    </div>
+                  )}
+
+                  {/* 3 Metric Cards Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
+                      <div className="flex items-center justify-between text-slate-400 mb-2">
+                        <span className="text-xs font-mono">Total de Acessos</span>
+                        <Eye className="w-4 h-4 text-[#7b66ff]" />
+                      </div>
+                      <div className="text-2xl sm:text-3xl font-extrabold text-white font-mono">
+                        {visitStats ? visitStats.total.toLocaleString('pt-BR') : '...'}
+                      </div>
+                      <span className="text-[11px] text-slate-400 mt-1">
+                        Acumulado em todos os acessos
+                      </span>
+                    </div>
+
+                    <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
+                      <div className="flex items-center justify-between text-slate-400 mb-2">
+                        <span className="text-xs font-mono">Acessos Hoje</span>
+                        <BarChart3 className="w-4 h-4 text-emerald-400" />
+                      </div>
+                      <div className="text-2xl sm:text-3xl font-extrabold text-emerald-400 font-mono">
+                        {visitStats ? `+${visitStats.today}` : '...'}
+                      </div>
+                      <span className="text-[11px] text-slate-400 mt-1">
+                        Contabilizados na data atual
+                      </span>
+                    </div>
+
+                    <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between">
+                      <div className="flex items-center justify-between text-slate-400 mb-2">
+                        <span className="text-xs font-mono">Último Acesso</span>
+                        <Activity className="w-4 h-4 text-cyan-400" />
+                      </div>
+                      <div className="text-sm font-semibold text-slate-200 font-mono truncate">
+                        {visitStats?.lastVisitedAt
+                          ? new Date(visitStats.lastVisitedAt).toLocaleString('pt-BR')
+                          : 'Recentemente'}
+                      </div>
+                      <span className="text-[11px] text-slate-400 mt-1">
+                        Sincronização com o rodapé
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Manual Calibration Form */}
+                  <div className="p-5 rounded-xl bg-slate-900/60 border border-slate-800">
+                    <h4 className="text-xs font-mono uppercase tracking-wider text-slate-300 font-bold mb-2">
+                      Calibrar ou Ajustar Valor do Contador
+                    </h4>
+                    <p className="text-xs text-slate-400 mb-4">
+                      Caso deseje migrar ou iniciar a contagem a partir de um valor específico, informe o novo total abaixo:
+                    </p>
+
+                    <form onSubmit={handleUpdateCounter} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                      <input
+                        type="number"
+                        min="0"
+                        value={customCounterInput}
+                        onChange={(e) => setCustomCounterInput(e.target.value)}
+                        placeholder="Ex: 1250"
+                        className="px-4 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white font-mono focus:outline-none focus:border-[#7b66ff] max-w-xs"
+                      />
+                      <button
+                        type="submit"
+                        className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#673de6] hover:bg-[#7b66ff] transition-all shadow-sm"
+                      >
+                        Salvar Novo Valor
+                      </button>
+                    </form>
+                  </div>
+
+                  {/* Information Box */}
+                  <div className="p-4 rounded-xl bg-slate-900/40 border border-slate-800/80 text-xs text-slate-400 space-y-1.5">
+                    <div className="font-semibold text-slate-300 font-mono flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-[#7b66ff]" />
+                      <span>Como funciona o contador real:</span>
+                    </div>
+                    <p>
+                      • <strong>Backend Dedicado:</strong> Cada acesso ao site envia uma requisição para a rota <code>/api/visits/hit</code>, gravando o novo total no arquivo de dados permanente.
+                    </p>
+                    <p>
+                      • <strong>Prevenção de Spam:</strong> Múltiplos recarregamentos de página na mesma aba do navegador são deduplicados na sessão para manter números fiéis de visitas.
+                    </p>
+                    <p>
+                      • <strong>Sincronização Global:</strong> O número exibido no rodapé do site reflete o total compartilhado para todos os visitantes que acessarem a página.
+                    </p>
                   </div>
                 </div>
               )}

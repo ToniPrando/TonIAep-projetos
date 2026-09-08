@@ -1,70 +1,127 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'motion/react';
 import { 
-  Cpu, 
-  Layers, 
-  Terminal, 
+  Zap, 
   Database, 
-  Bot, 
   GitBranch, 
-  Code2, 
   Sparkles, 
-  Check, 
-  Zap,
-  Flame,
-  Braces,
-  Palette,
+  BookOpen, 
+  Quote, 
+  Cpu, 
+  CheckCircle2, 
+  Terminal,
+  ShieldCheck,
   Server
 } from 'lucide-react';
-import { TECHNOLOGIES_LIST } from '../data/initialData';
-import { Technology } from '../types';
 import { useTheme } from '../context/ThemeContext';
 
+interface SkillItem {
+  id: string;
+  name: string;
+  role: string;
+  icon: React.ElementType;
+  accentColor: string;
+  badgeBg: string;
+  borderHover: string;
+  description: React.ReactNode;
+  tags: string[];
+}
+
 export const TechRadar: React.FC = () => {
-  const [activeCategory, setActiveCategory] = useState<string>('Todas');
-  const [selectedTech, setSelectedTech] = useState<Technology | null>(TECHNOLOGIES_LIST[0]);
   const { isDark } = useTheme();
 
-  const categories = ['Todas', 'Frontend', 'Backend', 'Database', 'AI & Data', 'DevOps & Tools'];
-
-  const filteredTechs = TECHNOLOGIES_LIST.filter((tech) => {
-    if (activeCategory === 'Todas') return true;
-    return tech.category === activeCategory;
-  });
-
-  const getTechIcon = (name: string) => {
-    switch (name) {
-      case 'TypeScript':
-      case 'JavaScript':
-        return <Braces className="w-5 h-5" />;
-      case 'React':
-      case 'Next.js':
-        return <Layers className="w-5 h-5" />;
-      case 'HTML & CSS':
-        return <Palette className="w-5 h-5" />;
-      case 'Node.js':
-        return <Server className="w-5 h-5" />;
-      case 'Python':
-        return <Terminal className="w-5 h-5" />;
-      case 'PostgreSQL':
-        return <Database className="w-5 h-5" />;
-      case 'Supabase':
-        return <Zap className="w-5 h-5" />;
-      case 'Firebase':
-        return <Flame className="w-5 h-5" />;
-      case 'Inteligência Artificial (IA)':
-        return <Bot className="w-5 h-5" />;
-      case 'Git & GitHub':
-        return <GitBranch className="w-5 h-5" />;
-      default:
-        return <Code2 className="w-5 h-5" />;
+  const skills: SkillItem[] = [
+    {
+      id: 'supabase',
+      name: 'Supabase',
+      role: 'Backend & Cloud',
+      icon: Zap,
+      accentColor: 'text-[#3ecf8e]',
+      badgeBg: 'bg-[#3ecf8e]/10 text-[#3ecf8e] border-[#3ecf8e]/30',
+      borderHover: isDark ? 'hover:border-[#3ecf8e]/50' : 'hover:border-[#3ecf8e]/60',
+      description: (
+        <p>
+          Utilizo o Supabase para estruturar o backend de aplicações, trabalhando com{' '}
+          <strong className={isDark ? 'text-white font-semibold' : 'text-slate-900 font-semibold'}>
+            bancos de dados PostgreSQL, autenticação de usuários, armazenamento de dados e integração com aplicações web
+          </strong>.
+        </p>
+      ),
+      tags: ['PostgreSQL', 'Authentication', 'Database', 'Storage', 'Backend']
+    },
+    {
+      id: 'sql',
+      name: 'SQL',
+      role: 'Banco de Dados',
+      icon: Database,
+      accentColor: 'text-[#60a5fa]',
+      badgeBg: 'bg-[#60a5fa]/10 text-[#60a5fa] border-[#60a5fa]/30',
+      borderHover: isDark ? 'hover:border-[#60a5fa]/50' : 'hover:border-[#60a5fa]/60',
+      description: (
+        <p>
+          Criação e organização de bancos de dados relacionais utilizando SQL, desenvolvendo{' '}
+          <strong className={isDark ? 'text-white font-semibold' : 'text-slate-900 font-semibold'}>
+            tabelas, relacionamentos, consultas, funções e estruturas de dados
+          </strong>{' '}
+          para diferentes tipos de sistemas.
+        </p>
+      ),
+      tags: ['Queries', 'Joins', 'Relacionamentos', 'CRUD', 'PostgreSQL']
+    },
+    {
+      id: 'github',
+      name: 'GitHub',
+      role: 'Versionamento & Projetos',
+      icon: GitBranch,
+      accentColor: 'text-[#bcbdff]',
+      badgeBg: 'bg-[#7b66ff]/10 text-[#bcbdff] border-[#7b66ff]/30',
+      borderHover: isDark ? 'hover:border-[#7b66ff]/50' : 'hover:border-[#673de6]/60',
+      description: (
+        <p>
+          Utilizo o GitHub para{' '}
+          <strong className={isDark ? 'text-white font-semibold' : 'text-slate-900 font-semibold'}>
+            organização, armazenamento e versionamento de projetos
+          </strong>
+          , mantendo o desenvolvimento estruturado e facilitando o acompanhamento das alterações realizadas no código.
+        </p>
+      ),
+      tags: ['Git', 'GitHub', 'Repositories', 'Version Control', 'Projetos']
+    },
+    {
+      id: 'ia',
+      name: 'Inteligência Artificial',
+      role: 'IA & Desenvolvimento',
+      icon: Sparkles,
+      accentColor: 'text-[#c084fc]',
+      badgeBg: 'bg-[#c084fc]/10 text-[#c084fc] border-[#c084fc]/30',
+      borderHover: isDark ? 'hover:border-[#c084fc]/50' : 'hover:border-[#9333ea]/60',
+      description: (
+        <div className="space-y-2">
+          <p>
+            Utilizo ferramentas e modelos de Inteligência Artificial como apoio no desenvolvimento de soluções, explorando IA para{' '}
+            <strong className={isDark ? 'text-white font-semibold' : 'text-slate-900 font-semibold'}>
+              automação, geração de conteúdo, criação de aplicações inteligentes e otimização de processos
+            </strong>.
+          </p>
+          <p className={isDark ? 'text-slate-300' : 'text-slate-600'}>
+            Também busco integrar recursos de IA aos projetos para desenvolver experiências mais modernas, eficientes e interativas.
+          </p>
+        </div>
+      ),
+      tags: ['Inteligência Artificial', 'Prompt Engineering', 'Automação', 'APIs de IA', 'IA Generativa']
     }
-  };
+  ];
 
   return (
-    <section id="tecnologias" className={`relative py-24 border-t transition-colors duration-300 overflow-hidden ${
-      isDark ? 'bg-[#0c081e] border-[#251951]' : 'bg-[#fafafc] border-[#dedee2]'
-    }`}>
+    <section 
+      id="skills" 
+      className={`relative py-24 border-t transition-colors duration-300 overflow-hidden ${
+        isDark ? 'bg-[#0c081e] border-[#251951]' : 'bg-[#fafafc] border-[#dedee2]'
+      }`}
+    >
+      {/* Anchor for backward compatibility with #tecnologias */}
+      <span id="tecnologias" className="absolute -top-20" aria-hidden="true" />
+
       {/* Dynamic Background Glows */}
       <div className="absolute top-10 left-1/4 w-80 h-80 bg-[#673de6]/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-10 right-1/4 w-80 h-80 bg-[#7b66ff]/5 rounded-full blur-3xl pointer-events-none" />
@@ -96,9 +153,9 @@ export const TechRadar: React.FC = () => {
               isDark ? 'text-white' : 'text-slate-900'
             }`}
           >
-            Stack de{' '}
+            Minhas{' '}
             <span className="bg-gradient-to-r from-[#7b66ff] via-[#9d99ff] to-[#673de6] bg-clip-text text-transparent">
-              Tecnologias Modernas
+              Skills
             </span>
           </motion.h2>
 
@@ -107,174 +164,155 @@ export const TechRadar: React.FC = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className={`text-sm sm:text-base mt-4 leading-relaxed font-normal ${
+            className={`text-base sm:text-lg mt-4 leading-relaxed font-normal ${
               isDark ? 'text-slate-300' : 'text-slate-600'
             }`}
           >
-            Dominância nas ferramentas mais produtivas e robustas do mercado global para desenvolvimento de ponta a ponta.
+            Tecnologias e ferramentas que utilizo para desenvolver soluções digitais modernas, funcionais e bem estruturadas.
           </motion.p>
         </div>
 
-        {/* Category Filters */}
-        <div className="flex flex-wrap items-center justify-center gap-2 mb-12">
-          {categories.map((cat) => {
-            const isActive = activeCategory === cat;
+        {/* 4 Skills Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+          {skills.map((skill, idx) => {
+            const IconComponent = skill.icon;
             return (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ${
-                  isActive
-                    ? 'text-white bg-[#673de6] shadow-sm'
-                    : isDark
-                      ? 'text-slate-300 bg-[#14102c] hover:bg-[#251951] hover:text-white border border-[#332a68]'
-                      : 'text-slate-700 bg-white hover:bg-slate-100 border border-[#dedee2] shadow-sm'
+              <motion.div
+                key={skill.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.5, delay: idx * 0.1, ease: [0.21, 0.47, 0.32, 0.98] }}
+                className={`rounded-2xl p-6 sm:p-7 border backdrop-blur-md transition-all duration-300 hover:-translate-y-1 shadow-sm hover:shadow-lg flex flex-col justify-between group ${
+                  isDark 
+                    ? `bg-[#14102c] border-[#332a68] ${skill.borderHover}` 
+                    : `bg-white border-[#dedee2] ${skill.borderHover}`
                 }`}
               >
-                {cat}
-              </button>
+                <div>
+                  {/* Top Bar: Icon + Title + Category Pill */}
+                  <div className="flex items-start justify-between gap-4 mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center border transition-transform duration-300 group-hover:scale-105 ${
+                        isDark 
+                          ? 'bg-[#1c183a] border-[#332a68]' 
+                          : 'bg-slate-50 border-slate-200'
+                      } ${skill.accentColor}`}>
+                        <IconComponent className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h3 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                          {skill.name}
+                        </h3>
+                        <span className="text-xs font-mono font-medium text-[#7b66ff]">
+                          {skill.role}
+                        </span>
+                      </div>
+                    </div>
+
+                    <span className={`px-2.5 py-1 rounded-lg text-xs font-mono border ${skill.badgeBg}`}>
+                      {skill.name === 'SQL' ? 'RDBMS' : skill.name === 'Supabase' ? 'Cloud BaaS' : skill.name === 'GitHub' ? 'VCS' : 'AI Models'}
+                    </span>
+                  </div>
+
+                  {/* Body Description */}
+                  <div className={`text-sm sm:text-base leading-relaxed mb-6 font-normal ${
+                    isDark ? 'text-slate-300' : 'text-slate-600'
+                  }`}>
+                    {skill.description}
+                  </div>
+                </div>
+
+                {/* Tags / Sub-competências */}
+                <div className={`pt-4 border-t flex flex-wrap items-center gap-1.5 ${
+                  isDark ? 'border-[#332a68]' : 'border-slate-100'
+                }`}>
+                  {skill.tags.map((tag, tagIdx) => (
+                    <span
+                      key={tag}
+                      className={`inline-flex items-center text-xs font-mono px-2.5 py-1 rounded-md border ${
+                        isDark 
+                          ? 'bg-[#0c081e] text-[#bcbdff] border-[#251951]' 
+                          : 'bg-slate-50 text-slate-700 border-slate-200'
+                      }`}
+                    >
+                      <code>{tag}</code>
+                    </span>
+                  ))}
+                </div>
+              </motion.div>
             );
           })}
         </div>
 
-        {/* Technologies Grid & Selected Inspector */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
-          {/* Tech Grid */}
-          <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {filteredTechs.map((tech, idx) => {
-              const isSelected = selectedTech?.name === tech.name;
-              return (
-                <motion.div
-                  key={tech.name}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.3, delay: idx * 0.03 }}
-                  onClick={() => setSelectedTech(tech)}
-                  className={`cursor-pointer p-4 rounded-2xl border transition-all duration-200 backdrop-blur-md relative overflow-hidden group ${
-                    isSelected
-                      ? isDark
-                        ? 'bg-[#1c183a] border-[#7b66ff] shadow-md -translate-y-1'
-                        : 'bg-purple-50/70 border-[#673de6] shadow-md -translate-y-1'
-                      : isDark
-                        ? 'bg-[#14102c] border-[#332a68] hover:border-[#7b66ff]/50 hover:bg-[#1c183a]'
-                        : 'bg-white border-[#dedee2] hover:border-slate-300 hover:bg-slate-50/80 shadow-sm'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <div
-                      className="w-10 h-10 rounded-xl flex items-center justify-center border transition-transform duration-200 group-hover:scale-110"
-                      style={{
-                        backgroundColor: `${tech.color}15`,
-                        borderColor: `${tech.color}40`,
-                        color: tech.color,
-                      }}
-                    >
-                      {getTechIcon(tech.name)}
-                    </div>
-                    <span className={`text-[11px] font-mono px-2 py-0.5 rounded border ${
-                      isDark ? 'text-slate-400 bg-[#0c081e] border-[#332a68]' : 'text-slate-600 bg-slate-100 border-slate-200'
-                    }`}>
-                      {tech.experienceYears || 'Especialista'}
-                    </span>
-                  </div>
+        {/* Card: Sempre aprendendo + Citação */}
+        <motion.div
+          initial={{ opacity: 0, y: 35 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-40px' }}
+          transition={{ duration: 0.6, delay: 0.2, ease: [0.21, 0.47, 0.32, 0.98] }}
+          className={`rounded-2xl p-6 sm:p-8 border backdrop-blur-md relative overflow-hidden shadow-md ${
+            isDark 
+              ? 'bg-gradient-to-br from-[#14102c] via-[#171333] to-[#14102c] border-[#332a68]' 
+              : 'bg-gradient-to-br from-white via-purple-50/40 to-white border-[#dedee2]'
+          }`}
+        >
+          {/* Subtle Ambient Accent Glow inside card */}
+          <div className="absolute top-0 right-0 w-80 h-80 bg-[#673de6]/10 rounded-full blur-3xl pointer-events-none" />
 
-                  <h3 className={`text-base font-bold mb-1 transition-colors ${
-                    isDark ? 'text-white group-hover:text-[#bcbdff]' : 'text-slate-900 group-hover:text-[#673de6]'
-                  }`}>
-                    {tech.name}
-                  </h3>
-                  <div className={`text-xs font-mono mb-3 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{tech.category}</div>
-
-                  {/* Level progress bar */}
-                  <div className={`w-full rounded-full h-1.5 overflow-hidden border ${
-                    isDark ? 'bg-[#0c081e] border-[#332a68]' : 'bg-slate-100 border-slate-200'
-                  }`}>
-                    <div
-                      className="h-full rounded-full transition-all duration-500"
-                      style={{
-                        width: `${tech.level}%`,
-                        backgroundColor: tech.color,
-                        boxShadow: `0 0 8px ${tech.color}80`,
-                      }}
-                    />
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-
-          {/* Right Selected Tech Deep Dive Inspector */}
-          {selectedTech && (
-            <div className={`lg:col-span-4 rounded-2xl p-6 backdrop-blur-xl shadow-xl sticky top-28 border ${
-              isDark 
-                ? 'bg-[#14102c] border-[#332a68]' 
-                : 'bg-white border-[#dedee2] shadow-lg'
-            }`}>
-              <div className={`flex items-center gap-3 mb-4 pb-4 border-b ${
-                isDark ? 'border-[#332a68]' : 'border-[#dedee2]'
-              }`}>
-                <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center border"
-                  style={{
-                    backgroundColor: `${selectedTech.color}20`,
-                    borderColor: `${selectedTech.color}50`,
-                    color: selectedTech.color,
-                  }}
-                >
-                  {getTechIcon(selectedTech.name)}
+          <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
+            {/* Left Column: Contexto de evolução */}
+            <div className="max-w-2xl">
+              <div className="flex items-center gap-2.5 mb-3">
+                <div className="p-2 rounded-lg bg-[#673de6]/15 text-[#7b66ff] border border-[#673de6]/30">
+                  <BookOpen className="w-5 h-5" />
                 </div>
-                <div>
-                  <h4 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{selectedTech.name}</h4>
-                  <span className={`text-xs font-mono font-semibold ${isDark ? 'text-[#bcbdff]' : 'text-[#673de6]'}`}>{selectedTech.category}</span>
-                </div>
+                <h3 className={`text-xl sm:text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                  Sempre aprendendo
+                </h3>
               </div>
 
-              <div className="space-y-4">
-                <div>
-                  <div className={`text-xs font-mono uppercase tracking-wider mb-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                    Proficiência Técnica
-                  </div>
-                  <div className={`flex items-center justify-between text-sm font-bold mb-1.5 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                    <span>Nível de Domínio</span>
-                    <span className={`font-mono ${isDark ? 'text-[#7b66ff]' : 'text-[#673de6]'}`}>{selectedTech.level}%</span>
-                  </div>
-                  <div className={`w-full rounded-full h-2 overflow-hidden border ${isDark ? 'bg-[#0c081e] border-[#332a68]' : 'bg-slate-100 border-slate-200'}`}>
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-[#673de6] to-[#7b66ff]"
-                      style={{ width: `${selectedTech.level}%` }}
-                    />
-                  </div>
-                </div>
+              <p className={`text-sm sm:text-base leading-relaxed mb-2 ${
+                isDark ? 'text-slate-300' : 'text-slate-700'
+              }`}>
+                Tecnologia está em constante evolução — e meu conhecimento também.
+              </p>
+              
+              <p className={`text-sm sm:text-base leading-relaxed mb-5 ${
+                isDark ? 'text-slate-400' : 'text-slate-600'
+              }`}>
+                Busco continuamente aprimorar minhas habilidades, conhecer novas ferramentas e aplicar novos conhecimentos em projetos reais.
+              </p>
 
-                <div className="pt-2">
-                  <div className={`text-xs font-mono uppercase tracking-wider mb-2 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                    Aplicação no Dia a Dia
-                  </div>
-                  <p className={`text-sm leading-relaxed p-3.5 rounded-xl border ${
-                    isDark 
-                      ? 'text-slate-300 bg-[#0c081e]/80 border-[#332a68]' 
-                      : 'text-slate-600 bg-slate-50 border-slate-200'
-                  }`}>
-                    {selectedTech.description}
-                  </p>
-                </div>
-
-                <div className={`pt-2 flex items-center justify-between text-xs border-t pt-4 ${
-                  isDark ? 'text-slate-400 border-[#332a68]' : 'text-slate-500 border-slate-200'
+              {/* Badges dos 4 pilares destacados */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={`px-3 py-1 rounded-full text-xs font-semibold font-mono tracking-wide border shadow-sm ${
+                  isDark 
+                    ? 'bg-[#251951] text-[#bcbdff] border-[#673de6]/40' 
+                    : 'bg-purple-100 text-[#673de6] border-purple-200'
                 }`}>
-                  <span>Tempo de Prática:</span>
-                  <span className={`font-mono font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>{selectedTech.experienceYears}</span>
-                </div>
+                  Supabase • SQL • GitHub • Inteligência Artificial
+                </span>
               </div>
             </div>
-          )}
 
-        </div>
+            {/* Right Column: Quote destacada */}
+            <div className={`w-full lg:w-auto lg:max-w-md p-5 sm:p-6 rounded-xl border relative ${
+              isDark 
+                ? 'bg-[#0c081e]/80 border-[#332a68]' 
+                : 'bg-white/80 border-purple-200 shadow-sm'
+            }`}>
+              <Quote className="w-7 h-7 text-[#7b66ff]/40 mb-2" />
+              <blockquote className={`text-sm sm:text-base italic leading-relaxed font-medium ${
+                isDark ? 'text-slate-200' : 'text-slate-800'
+              }`}>
+                “Tecnologia é ferramenta. O diferencial está em saber utilizá-la para transformar problemas em soluções.”
+              </blockquote>
+            </div>
+          </div>
+        </motion.div>
 
       </div>
     </section>
   );
 };
-

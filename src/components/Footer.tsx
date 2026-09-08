@@ -11,6 +11,7 @@ import {
   Activity
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { registerVisit, VisitStats } from '../lib/visits';
 
 interface FooterProps {
   onOpenAdmin: () => void;
@@ -18,31 +19,27 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({ onOpenAdmin }) => {
   const { isDark } = useTheme();
-  const [visitCount, setVisitCount] = useState<number>(1);
+  const [stats, setStats] = useState<VisitStats>({
+    total: 1249,
+    today: 1,
+    source: 'local'
+  });
 
   useEffect(() => {
-    try {
-      const STORAGE_KEY = 'portfolio_access_counter_total';
-      const SESSION_KEY = 'portfolio_session_access_registered';
-      
-      const savedCount = localStorage.getItem(STORAGE_KEY);
-      let currentTotal = savedCount ? parseInt(savedCount, 10) : 1248;
-      
-      if (isNaN(currentTotal) || currentTotal < 1) {
-        currentTotal = 1248;
-      }
+    let isMounted = true;
+    registerVisit()
+      .then((data) => {
+        if (isMounted) {
+          setStats(data);
+        }
+      })
+      .catch((err) => {
+        console.warn('Error loading visits:', err);
+      });
 
-      // Check if this page access has been counted for the current browser session
-      if (!sessionStorage.getItem(SESSION_KEY)) {
-        currentTotal += 1;
-        localStorage.setItem(STORAGE_KEY, currentTotal.toString());
-        sessionStorage.setItem(SESSION_KEY, 'true');
-      }
-
-      setVisitCount(currentTotal);
-    } catch {
-      setVisitCount(1249);
-    }
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const scrollToTop = () => {
@@ -53,7 +50,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAdmin }) => {
     { label: 'Início', href: '#inicio' },
     { label: 'Sobre Mim', href: '#sobre' },
     { label: 'Projetos', href: '#projetos' },
-    { label: 'Tecnologias', href: '#tecnologias' },
+    { label: 'Skills', href: '#skills' },
     { label: 'Serviços', href: '#servicos' },
     { label: 'Contato', href: '#contato' },
   ];
@@ -179,8 +176,8 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAdmin }) => {
             
             {/* Live Access Counter Badge */}
             <div 
-              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#14102c] border border-[#332a68] text-slate-300 shadow-inner"
-              title="Total de acessos contabilizados ao site"
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#14102c] border border-[#332a68] text-slate-300 shadow-inner group hover:border-[#7b66ff]/40 transition-colors"
+              title={`Total de acessos reais contabilizados: ${stats.total.toLocaleString('pt-BR')} (${stats.today} hoje)`}
             >
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -188,7 +185,12 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAdmin }) => {
               </span>
               <Eye className="w-3.5 h-3.5 text-[#7b66ff]" />
               <span className="text-slate-400 text-[11px]">Acessos:</span>
-              <span className="font-bold text-white font-mono tracking-wider">{visitCount.toLocaleString('pt-BR')}</span>
+              <span className="font-bold text-white font-mono tracking-wider">{stats.total.toLocaleString('pt-BR')}</span>
+              {stats.today > 0 && (
+                <span className="text-[10px] text-emerald-400 font-mono bg-emerald-950/60 px-1.5 py-0.2 rounded border border-emerald-800/40">
+                  +{stats.today} hoje
+                </span>
+              )}
             </div>
           </div>
 

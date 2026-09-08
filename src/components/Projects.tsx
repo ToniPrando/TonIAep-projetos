@@ -41,7 +41,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, onOpenAdmin }) => 
       { label: 'Sites', value: 'Sites', count: counts['Sites'] || 0 },
       { label: 'Apps', value: 'Apps', count: counts['Apps'] || 0 },
       { label: 'Sistemas', value: 'Sistemas', count: counts['Sistemas'] || 0 },
-      { label: 'IA & Agentes', value: 'IA', count: counts['IA'] || 0 },
+      { label: 'IA & Biometria', value: 'IA', count: counts['IA'] || 0 },
     ];
   }, [projects]);
 

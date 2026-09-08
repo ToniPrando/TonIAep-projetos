@@ -137,10 +137,19 @@ export const About: React.FC = () => {
                 isDark ? 'text-slate-300' : 'text-slate-600'
               }`}>
                 <p>
-                  Com sólida experiência em todo o ciclo de vida do desenvolvimento de software, atuo desde a concepção do design de interface até a infraestrutura em nuvem e a integração de modelos neurais de Inteligência Artificial.
+                  Sou desenvolvedor em constante evolução, apaixonado por tecnologia e pela criação de soluções digitais que unem funcionalidade, design e inovação.
                 </p>
                 <p>
-                  Acredito que um software excelente não deve apenas funcionar perfeitamente, mas também encantar o usuário com respostas instantâneas, estética refinada e segurança inquebrável. Seja para criar um website institucional, um sistema de gestão complexo ou um aplicativo móvel, o foco é sempre a excelência técnica e o retorno para o cliente.
+                  Atuo no desenvolvimento de sites, aplicações web e sistemas, buscando transformar ideias e necessidades em projetos funcionais, modernos e bem estruturados.
+                </p>
+                <p>
+                  Tenho conhecimentos em desenvolvimento Front-end e Back-end, bancos de dados, APIs, serviços em nuvem e Inteligência Artificial, explorando essas tecnologias para criar soluções cada vez mais completas e eficientes.
+                </p>
+                <p>
+                  Mesmo estando construindo minha experiência profissional, levo cada projeto com seriedade, comprometimento e responsabilidade. Valorizo código organizado, interfaces intuitivas, boa comunicação e atenção aos detalhes durante todo o processo de desenvolvimento.
+                </p>
+                <p>
+                  Acredito que desenvolver software vai muito além de escrever código. É necessário entender o problema, planejar uma solução adequada e construir uma experiência que realmente faça sentido para quem irá utilizá-la.
                 </p>
               </div>
             </div>
