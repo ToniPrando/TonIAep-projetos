@@ -28,12 +28,13 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, onOpenAdmin }) => 
   const { isDark } = useTheme();
 
   const categories: { label: string; value: string; count: number }[] = useMemo(() => {
+    const list = Array.isArray(projects) ? projects : [];
     const counts: Record<string, number> = {
-      Todos: projects.length,
-      Sites: projects.filter((p) => p.category === 'Sites').length,
-      Apps: projects.filter((p) => p.category === 'Apps').length,
-      Sistemas: projects.filter((p) => p.category === 'Sistemas').length,
-      IA: projects.filter((p) => p.category === 'IA').length,
+      Todos: list.length,
+      Sites: list.filter((p) => p && p.category === 'Sites').length,
+      Apps: list.filter((p) => p && p.category === 'Apps').length,
+      Sistemas: list.filter((p) => p && p.category === 'Sistemas').length,
+      IA: list.filter((p) => p && p.category === 'IA').length,
     };
 
     return [
@@ -46,17 +47,20 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, onOpenAdmin }) => 
   }, [projects]);
 
   const filteredProjects = useMemo(() => {
-    return projects.filter((project) => {
+    const list = Array.isArray(projects) ? projects : [];
+    return list.filter((project) => {
+      if (!project) return false;
       const matchCategory =
         selectedCategory === 'Todos' || project.category === selectedCategory;
 
       const q = searchQuery.toLowerCase().trim();
       const matchSearch =
         !q ||
-        project.title.toLowerCase().includes(q) ||
+        (project.title || '').toLowerCase().includes(q) ||
         (project.subtitle && project.subtitle.toLowerCase().includes(q)) ||
-        project.description.toLowerCase().includes(q) ||
-        project.technologies.some((t) => t.toLowerCase().includes(q));
+        (project.description || '').toLowerCase().includes(q) ||
+        (Array.isArray(project.technologies) &&
+          project.technologies.some((t) => (t || '').toLowerCase().includes(q)));
 
       return matchCategory && matchSearch;
     });

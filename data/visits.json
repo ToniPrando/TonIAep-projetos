@@ -1,12 +1,16 @@
 {
-  "total": 1250,
-  "today": 15,
+  "total": 1,
+  "today": 16,
   "lastDate": "2026-09-08",
-  "lastVisitedAt": "2026-09-08T20:59:22.930Z",
+  "lastVisitedAt": "2026-09-08T21:28:30.232Z",
   "history": {
-    "2026-09-08": 15
+    "2026-09-08": 16
   },
   "recentVisits": [
+    {
+      "timestamp": "2026-09-08T21:28:30.232Z",
+      "path": "/test"
+    },
     {
       "timestamp": "2026-09-08T20:59:22.930Z",
       "path": "/"

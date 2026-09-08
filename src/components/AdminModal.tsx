@@ -24,7 +24,8 @@ import {
   Eye,
   Activity,
   BarChart3,
-  RefreshCw
+  RefreshCw,
+  EyeOff
 } from 'lucide-react';
 import { Project, ProjectCategory } from '../types';
 import { fetchVisitStats, VisitStats } from '../lib/visits';
@@ -54,13 +55,17 @@ export const AdminModal: React.FC<AdminModalProps> = ({
 }) => {
   // Auth state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState('');
   const [isAuthLoading, setIsAuthLoading] = useState(false);
 
   // Active view tab: 'projects' | 'edit' | 'supabase' | 'visits'
   const [activeTab, setActiveTab] = useState<'projects' | 'edit' | 'supabase' | 'visits'>('projects');
+
+  // Confirmation modals (safe for sandboxed iframes)
+  const [projectToDelete, setProjectToDelete] = useState<{ id: string; title: string } | null>(null);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   // Visits Counter State
   const [visitStats, setVisitStats] = useState<VisitStats | null>(null);
@@ -100,37 +105,19 @@ export const AdminModal: React.FC<AdminModalProps> = ({
   if (!isOpen) return null;
 
   // Handle Login
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError('');
     setIsAuthLoading(true);
 
-    const client = getSupabaseClient();
-
-    // 1. If Supabase client exists, attempt Supabase Auth
-    if (client) {
-      try {
-        const { data, error } = await client.auth.signInWithPassword({
-          email: loginEmail,
-          password: loginPassword,
-        });
-
-        if (!error && data?.user) {
-          setIsAuthenticated(true);
-          setIsAuthLoading(false);
-          return;
-        }
-      } catch (err: any) {
-        console.warn('Supabase auth attempt:', err);
-      }
-    }
-
-    // 2. Master password verification for administrative access
-    if (loginPassword.trim() === 'Estela*12') {
+    // Master password verification for administrative access
+    const pwd = loginPassword.trim();
+    if (pwd === 'Estela*12') {
       setIsAuthenticated(true);
       setIsAuthLoading(false);
+      setAuthError('');
     } else {
-      setAuthError('Senha de acesso incorreta. Digite a senha correta de administrador.');
+      setAuthError('Senha incorreta. Verifique e digite novamente a senha de administrador.');
       setIsAuthLoading(false);
     }
   };
@@ -166,29 +153,31 @@ export const AdminModal: React.FC<AdminModalProps> = ({
   };
 
   // Delete project
-  const handleDelete = async (id: string, title: string) => {
-    if (window.confirm(`Tem certeza que deseja excluir o projeto "${title}"?`)) {
-      await deleteProject(id);
-      onProjectsUpdated();
-    }
+  const handleDelete = (id: string, title: string) => {
+    setProjectToDelete({ id, title });
   };
 
   // Save project
   const handleSaveProject = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingProject || !editingProject.title.trim()) {
-      alert('Por favor, informe o título do projeto.');
+      setSaveStatus('Por favor, informe o título do projeto.');
       return;
     }
 
     setIsSaving(true);
     setSaveStatus('Salvando projeto...');
 
-    const res = await saveProject(editingProject);
+    const res = await saveProject({
+      ...editingProject,
+      technologies: editingProject.technologies || [],
+      keyFeatures: editingProject.keyFeatures || [],
+      metrics: editingProject.metrics || [],
+    });
     setIsSaving(false);
 
     if (res.success) {
-      setSaveStatus('Projeto salvo com sucesso!');
+      setSaveStatus(res.error || 'Projeto salvo com sucesso!');
       onProjectsUpdated();
       setTimeout(() => {
         setActiveTab('projects');
@@ -196,7 +185,7 @@ export const AdminModal: React.FC<AdminModalProps> = ({
         setSaveStatus(null);
       }, 1000);
     } else {
-      setSaveStatus(`Erro ao salvar: ${res.error}`);
+      setSaveStatus(`Erro ao salvar: ${res.error || 'Falha inesperada'}`);
     }
   };
 
@@ -282,11 +271,7 @@ export const AdminModal: React.FC<AdminModalProps> = ({
   };
 
   const handleResetProjects = () => {
-    if (window.confirm('Deseja restaurar a lista inicial de projetos de demonstração?')) {
-      resetToInitialProjects();
-      onProjectsUpdated();
-      alert('Projetos restaurados!');
-    }
+    setShowResetConfirm(true);
   };
 
   const loadVisits = async () => {
@@ -359,13 +344,15 @@ export const AdminModal: React.FC<AdminModalProps> = ({
     setTimeout(() => setCounterStatusMsg(null), 3000);
   };
 
-  const filteredProjects = projects.filter((p) => {
+  const filteredProjects = (projects || []).filter((p) => {
+    if (!p) return false;
     const q = adminSearch.toLowerCase().trim();
     if (!q) return true;
     return (
-      p.title.toLowerCase().includes(q) ||
-      p.category.toLowerCase().includes(q) ||
-      p.technologies.some((t) => t.toLowerCase().includes(q))
+      (p.title || '').toLowerCase().includes(q) ||
+      (p.category || '').toLowerCase().includes(q) ||
+      (Array.isArray(p.technologies) &&
+        p.technologies.some((t) => (t || '').toLowerCase().includes(q)))
     );
   });
 
@@ -454,38 +441,40 @@ export const AdminModal: React.FC<AdminModalProps> = ({
 
               <form onSubmit={handleLogin} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-mono text-slate-300 mb-1">
-                    E-mail de Acesso (opcional)
-                  </label>
-                  <input
-                    type="email"
-                    placeholder="antonioestefanoprando@gmail.com"
-                    value={loginEmail}
-                    onChange={(e) => setLoginEmail(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-mono text-slate-300 mb-1">
+                  <label className="block text-xs font-mono text-slate-300 mb-1.5">
                     Senha de Administrador
                   </label>
-                  <input
-                    type="password"
-                    required
-                    placeholder="Digite a senha de acesso"
-                    value={loginPassword}
-                    onChange={(e) => setLoginPassword(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 font-mono"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      autoFocus
+                      required
+                      placeholder="Digite a senha de acesso"
+                      value={loginPassword}
+                      onChange={(e) => {
+                        setLoginPassword(e.target.value);
+                        if (authError) setAuthError('');
+                      }}
+                      className="w-full pl-4 pr-11 py-3 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 font-mono tracking-wide"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-200 transition-colors focus:outline-none"
+                      title={showPassword ? 'Ocultar senha' : 'Ver senha'}
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                 </div>
 
                 <button
                   type="submit"
-                  disabled={isAuthLoading}
-                  className="w-full py-3 rounded-xl font-bold text-slate-950 bg-gradient-to-r from-cyan-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all mt-2"
+                  disabled={isAuthLoading || !loginPassword.trim()}
+                  className="w-full py-3 rounded-xl font-bold text-slate-950 bg-gradient-to-r from-cyan-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all mt-2 flex items-center justify-center gap-2"
                 >
-                  {isAuthLoading ? 'Verificando...' : 'Entrar no Painel'}
+                  <Key className="w-4 h-4" />
+                  <span>{isAuthLoading ? 'Verificando...' : 'Acessar Painel'}</span>
                 </button>
               </form>
             </div>
@@ -565,53 +554,62 @@ export const AdminModal: React.FC<AdminModalProps> = ({
 
                   {/* Projects Table / Grid */}
                   <div className="grid grid-cols-1 gap-3">
-                    {filteredProjects.map((p) => (
-                      <div
-                        key={p.id}
-                        className="bg-slate-900/70 border border-slate-800 hover:border-cyan-500/40 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all"
-                      >
-                        <div className="flex items-center gap-4">
-                          <img
-                            src={p.imageUrl}
-                            alt={p.title}
-                            className="w-16 h-12 object-cover rounded-lg border border-slate-800 shrink-0"
-                            referrerPolicy="no-referrer"
-                          />
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs font-mono font-bold text-cyan-400 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-800/40">
-                                {p.category}
-                              </span>
-                              <h4 className="text-sm sm:text-base font-bold text-white">{p.title}</h4>
-                            </div>
-                            <div className="flex flex-wrap gap-1 mt-1.5">
-                              {p.technologies.slice(0, 4).map((tech) => (
-                                <span key={tech} className="text-[10px] font-mono text-slate-400 bg-slate-950 px-1.5 py-0.2 rounded">
-                                  {tech}
+                    {filteredProjects.length === 0 ? (
+                      <div className="text-center py-12 bg-slate-900/40 rounded-xl border border-slate-800">
+                        <p className="text-slate-400 text-sm">Nenhum projeto encontrado para esta busca.</p>
+                      </div>
+                    ) : (
+                      filteredProjects.map((p) => (
+                        <div
+                          key={p.id}
+                          className="bg-slate-900/70 border border-slate-800 hover:border-cyan-500/40 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all"
+                        >
+                          <div className="flex items-center gap-4">
+                            <img
+                              src={p.imageUrl || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&auto=format&fit=crop'}
+                              alt={p.title}
+                              className="w-16 h-12 object-cover rounded-lg border border-slate-800 shrink-0"
+                              referrerPolicy="no-referrer"
+                              onError={(e) => {
+                                (e.currentTarget as HTMLImageElement).src = 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&auto=format&fit=crop';
+                              }}
+                            />
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-mono font-bold text-cyan-400 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-800/40">
+                                  {p.category}
                                 </span>
-                              ))}
+                                <h4 className="text-sm sm:text-base font-bold text-white">{p.title}</h4>
+                              </div>
+                              <div className="flex flex-wrap gap-1 mt-1.5">
+                                {(p.technologies || []).slice(0, 4).map((tech) => (
+                                  <span key={tech} className="text-[10px] font-mono text-slate-400 bg-slate-950 px-1.5 py-0.2 rounded">
+                                    {tech}
+                                  </span>
+                                ))}
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                        <div className="flex items-center gap-2 self-end sm:self-center">
-                          <button
-                            onClick={() => handleEdit(p)}
-                            className="p-2 rounded-lg bg-slate-800 hover:bg-cyan-500/20 text-slate-300 hover:text-cyan-300 border border-slate-700 transition-colors"
-                            title="Editar Projeto"
-                          >
-                            <Edit3 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(p.id, p.title)}
-                            className="p-2 rounded-lg bg-slate-800 hover:bg-rose-500/20 text-slate-300 hover:text-rose-400 border border-slate-700 transition-colors"
-                            title="Excluir Projeto"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          <div className="flex items-center gap-2 self-end sm:self-center">
+                            <button
+                              onClick={() => handleEdit(p)}
+                              className="p-2 rounded-lg bg-slate-800 hover:bg-cyan-500/20 text-slate-300 hover:text-cyan-300 border border-slate-700 transition-colors"
+                              title="Editar Projeto"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(p.id, p.title)}
+                              className="p-2 rounded-lg bg-slate-800 hover:bg-rose-500/20 text-slate-300 hover:text-rose-400 border border-slate-700 transition-colors"
+                              title="Excluir Projeto"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
 
                   {/* Reset action */}
@@ -729,7 +727,7 @@ export const AdminModal: React.FC<AdminModalProps> = ({
                           URL da Imagem do Projeto *
                         </label>
                         <input
-                          type="url"
+                          type="text"
                           required
                           value={editingProject.imageUrl}
                           onChange={(e) => setEditingProject({ ...editingProject, imageUrl: e.target.value })}
@@ -786,7 +784,7 @@ export const AdminModal: React.FC<AdminModalProps> = ({
                             URL do Projeto Online
                           </label>
                           <input
-                            type="url"
+                            type="text"
                             value={editingProject.projectUrl || ''}
                             onChange={(e) => setEditingProject({ ...editingProject, projectUrl: e.target.value })}
                             placeholder="https://meuprojeto.com"
@@ -799,7 +797,7 @@ export const AdminModal: React.FC<AdminModalProps> = ({
                             URL do GitHub
                           </label>
                           <input
-                            type="url"
+                            type="text"
                             value={editingProject.githubUrl || ''}
                             onChange={(e) => setEditingProject({ ...editingProject, githubUrl: e.target.value })}
                             placeholder="https://github.com/..."
@@ -1207,6 +1205,76 @@ export const AdminModal: React.FC<AdminModalProps> = ({
 
         </div>
       </motion.div>
+
+      {/* Inline Confirmation: Delete Project */}
+      {projectToDelete && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center gap-3 text-rose-400">
+              <AlertCircle className="w-6 h-6" />
+              <h4 className="text-base font-bold text-white">Confirmar Exclusão</h4>
+            </div>
+            <p className="text-xs text-slate-300">
+              Tem certeza que deseja excluir o projeto <strong className="text-white">"{projectToDelete.title}"</strong>?
+            </p>
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setProjectToDelete(null)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white bg-slate-800 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  await deleteProject(projectToDelete.id);
+                  setProjectToDelete(null);
+                  onProjectsUpdated();
+                }}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 transition-colors shadow-lg shadow-rose-950"
+              >
+                Excluir Projeto
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Inline Confirmation: Reset Initial Projects */}
+      {showResetConfirm && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center gap-3 text-amber-400">
+              <RotateCcw className="w-6 h-6" />
+              <h4 className="text-base font-bold text-white">Restaurar Projetos Iniciais</h4>
+            </div>
+            <p className="text-xs text-slate-300">
+              Deseja restaurar a lista inicial com todos os projetos padrão do portfólio? As alterações não salvas serão substituídas pelos modelos iniciais.
+            </p>
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowResetConfirm(false)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white bg-slate-800 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  resetToInitialProjects();
+                  setShowResetConfirm(false);
+                  onProjectsUpdated();
+                }}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-950 bg-amber-400 hover:bg-amber-300 transition-colors shadow-lg shadow-amber-950"
+              >
+                Sim, Restaurar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
