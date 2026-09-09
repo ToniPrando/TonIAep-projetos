@@ -14,19 +14,22 @@ export async function fetchVisitStats(): Promise<VisitStats> {
   try {
     const res = await fetch('/api/visits');
     if (res.ok) {
-      const data = await res.json();
-      if (typeof data.total === 'number') {
-        localStorage.setItem(LOCAL_STORAGE_KEY, data.total.toString());
-        return {
-          total: data.total,
-          today: data.today || 1,
-          lastVisitedAt: data.lastVisitedAt,
-          source: 'server',
-        };
+      const contentType = res.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        const data = await res.json();
+        if (typeof data?.total === 'number') {
+          localStorage.setItem(LOCAL_STORAGE_KEY, data.total.toString());
+          return {
+            total: data.total,
+            today: data.today || 1,
+            lastVisitedAt: data.lastVisitedAt,
+            source: 'server',
+          };
+        }
       }
     }
-  } catch (err) {
-    console.warn('Could not fetch server visits, using local cache:', err);
+  } catch {
+    // Quiet fallback to local cache
   }
 
   // Fallback to local storage
@@ -55,20 +58,23 @@ export async function registerVisit(): Promise<VisitStats> {
       });
 
       if (res.ok) {
-        const data = await res.json();
-        if (typeof data.total === 'number') {
-          localStorage.setItem(LOCAL_STORAGE_KEY, data.total.toString());
-          trySyncToSupabase();
-          return {
-            total: data.total,
-            today: data.today || 1,
-            lastVisitedAt: data.lastVisitedAt,
-            source: 'server',
-          };
+        const contentType = res.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          const data = await res.json();
+          if (typeof data?.total === 'number') {
+            localStorage.setItem(LOCAL_STORAGE_KEY, data.total.toString());
+            trySyncToSupabase();
+            return {
+              total: data.total,
+              today: data.today || 1,
+              lastVisitedAt: data.lastVisitedAt,
+              source: 'server',
+            };
+          }
         }
       }
-    } catch (err) {
-      console.warn('Error registering visit on server:', err);
+    } catch {
+      // Quiet fallback to local storage
     }
 
     // Local increment fallback

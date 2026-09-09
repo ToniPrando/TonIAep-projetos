@@ -34,7 +34,7 @@ function loadVisitsData(): VisitsData {
       }
     }
   } catch (err) {
-    console.error('Error reading visits data:', err);
+    console.warn(`[${new Date().toISOString()}] [WARN] Error reading visits data, initializing fresh data:`, err);
   }
 
   const todayStr = getTodayString();
@@ -59,7 +59,7 @@ function saveVisitsData(data: VisitsData): void {
     }
     fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
   } catch (err) {
-    console.error('Error writing visits data:', err);
+    console.error(`[${new Date().toISOString()}] [ERROR] Error writing visits data:`, err);
   }
 }
 
@@ -69,13 +69,25 @@ async function startServer() {
 
   app.use(express.json());
 
+  // Structured request logging middleware for /api routes
+  app.use((req, res, next) => {
+    if (req.path.startsWith('/api')) {
+      const start = Date.now();
+      res.on('finish', () => {
+        const duration = Date.now() - start;
+        console.log(`[${new Date().toISOString()}] [API] ${req.method} ${req.path} -> ${res.statusCode} (${duration}ms)`);
+      });
+    }
+    next();
+  });
+
   // API Route: Health check
   app.get('/api/health', (_req, res) => {
     res.json({ status: 'ok', time: new Date().toISOString() });
   });
 
-  // API Route: Get current visits count
-  app.get('/api/visits', (_req, res) => {
+  // API Route: Get current visits count (supports both /api/visits and /api/visits/stats)
+  app.get(['/api/visits', '/api/visits/stats'], (_req, res) => {
     const data = loadVisitsData();
     res.json({
       total: data.total,
@@ -133,6 +145,20 @@ async function startServer() {
       return res.json({ success: true, total: data.total });
     }
     return res.status(400).json({ error: 'Invalid total number' });
+  });
+
+  // Dedicated 404 handler for API routes (prevents returning HTML SPA fallback on unknown API routes)
+  app.all('/api/*', (req, res) => {
+    res.status(404).json({ error: `Rota API não encontrada: ${req.method} ${req.path}` });
+  });
+
+  // Global error-handling middleware for Express
+  app.use((err: any, req: express.Request, res: express.Response, _next: express.NextFunction) => {
+    console.error(`[${new Date().toISOString()}] [ERROR] ${req.method} ${req.path}:`, err?.message || err);
+    if (res.headersSent) return;
+    res.status(err.status || 500).json({
+      error: err?.message || 'Erro interno no servidor',
+    });
   });
 
   // Vite middleware setup

@@ -33,8 +33,8 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAdmin }) => {
           setStats(data);
         }
       })
-      .catch((err) => {
-        console.warn('Error loading visits:', err);
+      .catch(() => {
+        // Silently maintain fallback stats
       });
 
     return () => {

@@ -16,12 +16,12 @@ export function getSupabaseSettings(): SupabaseSettings {
     const stored = localStorage.getItem(LOCAL_STORAGE_SUPABASE_CONFIG_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
-      if (parsed.url && parsed.anonKey) {
+      if (parsed && typeof parsed.url === 'string' && typeof parsed.anonKey === 'string') {
         return parsed;
       }
     }
-  } catch (e) {
-    console.warn('Error reading stored Supabase config', e);
+  } catch {
+    // Quiet fallback
   }
 
   return {
@@ -34,8 +34,8 @@ export function saveSupabaseSettings(settings: SupabaseSettings): void {
   try {
     localStorage.setItem(LOCAL_STORAGE_SUPABASE_CONFIG_KEY, JSON.stringify(settings));
     _supabaseClient = null; // Reset cached client
-  } catch (e) {
-    console.error('Error saving Supabase config', e);
+  } catch {
+    // Quiet fallback if localStorage quota exceeded
   }
 }
 
@@ -49,8 +49,7 @@ export function getSupabaseClient(): SupabaseClient | null {
     try {
       _supabaseClient = createClient(url, anonKey);
       return _supabaseClient;
-    } catch (err) {
-      console.error('Failed to create Supabase client:', err);
+    } catch {
       return null;
     }
   }
@@ -158,8 +157,8 @@ export async function fetchProjects(): Promise<Project[]> {
         saveLocalProjects(mapped);
         return mapped;
       }
-    } catch (e) {
-      console.warn('Supabase fetch error, using local data fallback:', e);
+    } catch {
+      // Quiet fallback to local data
     }
   }
 
@@ -177,8 +176,8 @@ export function getLocalProjects(): Project[] {
         return parsed;
       }
     }
-  } catch (err) {
-    console.error('Error reading local projects', err);
+  } catch {
+    // Quiet fallback to initial dataset
   }
   // Default to initial dataset
   return INITIAL_PROJECTS;
@@ -187,8 +186,8 @@ export function getLocalProjects(): Project[] {
 export function saveLocalProjects(projects: Project[]): void {
   try {
     localStorage.setItem(LOCAL_STORAGE_PROJECTS_KEY, JSON.stringify(projects));
-  } catch (err) {
-    console.error('Error saving local projects', err);
+  } catch {
+    // Quiet fallback
   }
 }
 
@@ -234,11 +233,9 @@ export async function saveProject(project: Project): Promise<{ success: boolean;
 
       const { error } = await client.from('projects').upsert(payload);
       if (error) {
-        console.warn('Supabase upsert note:', error.message);
         return { success: true, error: `Salvo localmente (Supabase retornou: ${error.message})` };
       }
     } catch (e: any) {
-      console.warn('Supabase upsert error:', e);
       return { success: true, error: `Salvo localmente (${e?.message || 'Erro Supabase'})` };
     }
   }
