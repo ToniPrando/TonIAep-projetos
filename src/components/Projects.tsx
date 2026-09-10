@@ -5,7 +5,6 @@ import {
   ExternalLink, 
   Github, 
   Search, 
-  Plus, 
   Sparkles, 
   ArrowUpRight, 
   Layers, 
@@ -18,10 +17,9 @@ import { useTheme } from '../context/ThemeContext';
 
 interface ProjectsProps {
   projects: Project[];
-  onOpenAdmin: () => void;
 }
 
-export const Projects: React.FC<ProjectsProps> = ({ projects, onOpenAdmin }) => {
+export const Projects: React.FC<ProjectsProps> = ({ projects }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('Todos');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -101,19 +99,6 @@ export const Projects: React.FC<ProjectsProps> = ({ projects, onOpenAdmin }) => 
               Aplicações web, sistemas corporativos, aplicativos móveis e soluções com Inteligência Artificial construídos com rigor técnico.
             </p>
           </div>
-
-          {/* Quick Admin New Project Button */}
-          <button
-            onClick={onOpenAdmin}
-            className={`self-start md:self-auto inline-flex items-center gap-2 px-4 py-2 rounded-xl border text-xs font-mono transition-all shadow-sm ${
-              isDark 
-                ? 'bg-[#14102c] hover:bg-[#251951] border-[#332a68] hover:border-[#7b66ff]/50 text-[#bcbdff]' 
-                : 'bg-white hover:bg-slate-100 border-[#dedee2] hover:border-[#673de6] text-[#673de6]'
-            }`}
-          >
-            <Plus className="w-3.5 h-3.5 text-[#7b66ff]" />
-            <span>Gerenciar Projetos</span>
-          </button>
         </div>
 
         {/* Filter Controls Bar */}

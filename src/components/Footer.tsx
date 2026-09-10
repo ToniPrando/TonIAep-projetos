@@ -1,46 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { 
   ArrowUp, 
   Github, 
   Linkedin, 
   Mail, 
-  Phone, 
-  Sparkles, 
-  ShieldCheck,
-  Eye,
-  Activity
+  Phone 
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
-import { registerVisit, VisitStats } from '../lib/visits';
 
-interface FooterProps {
-  onOpenAdmin: () => void;
-}
-
-export const Footer: React.FC<FooterProps> = ({ onOpenAdmin }) => {
+export const Footer: React.FC = () => {
   const { isDark } = useTheme();
-  const [stats, setStats] = useState<VisitStats>({
-    total: 1249,
-    today: 1,
-    source: 'local'
-  });
-
-  useEffect(() => {
-    let isMounted = true;
-    registerVisit()
-      .then((data) => {
-        if (isMounted) {
-          setStats(data);
-        }
-      })
-      .catch(() => {
-        // Silently maintain fallback stats
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -139,24 +108,12 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAdmin }) => {
             </div>
           </div>
 
-          {/* Admin & Back to Top */}
-          <div className="md:col-span-3 flex flex-col justify-between items-start md:items-end">
-            <div>
-              <h4 className="text-xs font-mono uppercase tracking-widest text-slate-300 font-bold mb-3 md:text-right">
-                Acesso Restrito
-              </h4>
-              <button
-                onClick={onOpenAdmin}
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#14102c] hover:bg-[#251951] border border-[#332a68] hover:border-[#7b66ff]/50 text-xs font-mono text-[#bcbdff] transition-all shadow-sm"
-              >
-                <ShieldCheck className="w-4 h-4 text-[#7b66ff]" />
-                <span>Painel Administrativo</span>
-              </button>
-            </div>
-
+          {/* Back to Top */}
+          <div className="md:col-span-3 flex md:justify-end items-start">
             <button
               onClick={scrollToTop}
-              className="mt-6 md:mt-0 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#14102c] hover:bg-[#251951] border border-[#332a68] text-xs font-mono text-slate-400 hover:text-white transition-all"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#14102c] hover:bg-[#251951] border border-[#332a68] hover:border-[#7b66ff]/50 text-xs font-mono text-slate-300 hover:text-white transition-all shadow-sm"
+              title="Voltar ao início da página"
             >
               <span>Voltar ao topo</span>
               <ArrowUp className="w-3.5 h-3.5 text-[#7b66ff]" />
@@ -165,33 +122,10 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAdmin }) => {
 
         </div>
 
-        {/* Bottom Copyright, Visitor Counter & Tech Sign */}
+        {/* Bottom Copyright & Tech Sign */}
         <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-400 font-mono">
-          <div className="flex flex-col sm:flex-row items-center gap-3">
-            <div className="text-slate-300">
-              © 2026 — Todos os direitos reservados.
-            </div>
-            
-            <span className="hidden sm:inline text-slate-600">•</span>
-            
-            {/* Live Access Counter Badge */}
-            <div 
-              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#14102c] border border-[#332a68] text-slate-300 shadow-inner group hover:border-[#7b66ff]/40 transition-colors"
-              title={`Total de acessos reais contabilizados: ${stats.total.toLocaleString('pt-BR')} (${stats.today} hoje)`}
-            >
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              <Eye className="w-3.5 h-3.5 text-[#7b66ff]" />
-              <span className="text-slate-400 text-[11px]">Acessos:</span>
-              <span className="font-bold text-white font-mono tracking-wider">{stats.total.toLocaleString('pt-BR')}</span>
-              {stats.today > 0 && (
-                <span className="text-[10px] text-emerald-400 font-mono bg-emerald-950/60 px-1.5 py-0.2 rounded border border-emerald-800/40">
-                  +{stats.today} hoje
-                </span>
-              )}
-            </div>
+          <div className="text-slate-300">
+            © 2026 — Todos os direitos reservados.
           </div>
 
           <div className="flex items-center gap-2">

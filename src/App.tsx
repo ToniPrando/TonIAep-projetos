@@ -7,7 +7,6 @@ import { TechRadar } from './components/TechRadar';
 import { Services } from './components/Services';
 import { Contact } from './components/Contact';
 import { Footer } from './components/Footer';
-import { AdminModal } from './components/AdminModal';
 import { Project } from './types';
 import { fetchProjects, isSupabaseConnected } from './lib/supabase';
 import { MessageCircle } from 'lucide-react';
@@ -15,7 +14,6 @@ import { ThemeProvider, useTheme } from './context/ThemeContext';
 
 function PortfolioApp() {
   const [projects, setProjects] = useState<Project[]>([]);
-  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<string>('');
   const [isSupabaseActive, setIsSupabaseActive] = useState(false);
   const { isDark } = useTheme();
@@ -48,10 +46,7 @@ function PortfolioApp() {
       }`} />
 
       {/* Navigation Bar */}
-      <Navbar
-        onOpenAdmin={() => setIsAdminModalOpen(true)}
-        isSupabaseActive={isSupabaseActive}
-      />
+      <Navbar isSupabaseActive={isSupabaseActive} />
 
       {/* Main Content Sections */}
       <main>
@@ -62,10 +57,7 @@ function PortfolioApp() {
         <About />
 
         {/* 3. Projetos (Sites, Apps, Sistemas, IA) */}
-        <Projects
-          projects={projects}
-          onOpenAdmin={() => setIsAdminModalOpen(true)}
-        />
+        <Projects projects={projects} />
 
         {/* 4. Tecnologias */}
         <TechRadar />
@@ -78,7 +70,7 @@ function PortfolioApp() {
       </main>
 
       {/* 7. Rodapé */}
-      <Footer onOpenAdmin={() => setIsAdminModalOpen(true)} />
+      <Footer />
 
       {/* Floating Action Quick Access (WhatsApp) */}
       <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3 pointer-events-auto">
@@ -94,14 +86,6 @@ function PortfolioApp() {
           <span className="hidden sm:inline text-xs">WhatsApp</span>
         </a>
       </div>
-
-      {/* Admin Management Modal */}
-      <AdminModal
-        isOpen={isAdminModalOpen}
-        onClose={() => setIsAdminModalOpen(false)}
-        projects={projects}
-        onProjectsUpdated={loadProjects}
-      />
     </div>
   );
 }

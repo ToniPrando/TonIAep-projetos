@@ -14,7 +14,6 @@ import {
 import { useTheme } from '../context/ThemeContext';
 
 interface NavbarProps {
-  onOpenAdmin?: () => void;
   isSupabaseActive?: boolean;
 }
 

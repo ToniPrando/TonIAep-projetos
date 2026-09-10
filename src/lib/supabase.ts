@@ -2,7 +2,8 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Project } from '../types';
 import { INITIAL_PROJECTS } from '../data/initialData';
 
-const LOCAL_STORAGE_PROJECTS_KEY = 'tech_portfolio_projects_v3';
+const LOCAL_STORAGE_PROJECTS_KEY = 'tech_portfolio_projects_v5';
+const LEGACY_STORAGE_PROJECTS_KEY = 'tech_portfolio_projects_v4';
 const LOCAL_STORAGE_SUPABASE_CONFIG_KEY = 'tech_portfolio_supabase_config_v2';
 
 export interface SupabaseSettings {
@@ -169,11 +170,31 @@ export async function fetchProjects(): Promise<Project[]> {
 // Local storage helpers
 export function getLocalProjects(): Project[] {
   try {
-    const raw = localStorage.getItem(LOCAL_STORAGE_PROJECTS_KEY);
+    const raw = localStorage.getItem(LOCAL_STORAGE_PROJECTS_KEY) || localStorage.getItem(LEGACY_STORAGE_PROJECTS_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
+        // Automatically sync updated titles requested by user
+        const normalized = parsed.map((p: Project) => {
+          if (
+            p.id === 'proj-1' || 
+            p.title === 'Sites com Sistemas Integrados' || 
+            p.title === 'Sites com Sistemas Integrados e Land pages' ||
+            p.title.toLowerCase().includes('land page')
+          ) {
+            return { ...p, title: 'Sites com Sistemas Integrados e Landing Pages' };
+          }
+          if (p.id === 'proj-3' || p.title === 'Controle de Banco de Horas Empresarial' || p.title.toLowerCase().includes('banco de horas')) {
+            return {
+              ...p,
+              title: 'Serviços Empresariais',
+              subtitle: p.subtitle || 'Gestão corporativa, jornadas de trabalho, controle de horas e processos internos'
+            };
+          }
+          return p;
+        });
+        localStorage.setItem(LOCAL_STORAGE_PROJECTS_KEY, JSON.stringify(normalized));
+        return normalized;
       }
     }
   } catch {

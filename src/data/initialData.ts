@@ -3,7 +3,7 @@ import { Project, Technology, ServiceItem } from '../types';
 export const INITIAL_PROJECTS: Project[] = [
   {
     id: 'proj-1',
-    title: 'Sites com Sistemas Integrados',
+    title: 'Sites com Sistemas Integrados e Landing Pages',
     subtitle: 'Portais web institucionais conectados a bancos de dados e APIs',
     description: 'Desenvolvimento de sites profissionais e landing pages integrados a painéis administrativos, bancos relacionais, formulários dinâmicos e disparo de notificações.',
     longDescription: 'Solução completa que une interfaces modernas e responsivas à integração profunda com backends e serviços na nuvem. Permite gestão dinâmica de conteúdos, captação de clientes, agendamentos automáticos e sincronização em tempo real de dados com Supabase e PostgreSQL.',
@@ -53,10 +53,10 @@ export const INITIAL_PROJECTS: Project[] = [
   },
   {
     id: 'proj-3',
-    title: 'Controle de Banco de Horas Empresarial',
-    subtitle: 'Gestão de jornadas, horas extras, compensações e ponto eletrônico',
-    description: 'Sistema corporativo para registro, cálculo e acompanhamento de banco de horas, jornadas de trabalho, horas extras, atrasos e justificativas em conformidade com as normas trabalhistas.',
-    longDescription: 'Desenvolvido para simplificar a rotina do departamento pessoal e dos colaboradores. Conta com cálculo automático de saldos de horas, extrato individual e por setor, aprovação de solicitações de abono e relatórios auditáveis para fechamento de folha.',
+    title: 'Serviços Empresariais',
+    subtitle: 'Gestão corporativa, jornadas de trabalho, controle de horas e processos internos',
+    description: 'Plataforma de serviços empresariais para registro, cálculo e acompanhamento de banco de horas, jornadas de trabalho, horas extras, atrasos e justificativas em conformidade com as normas trabalhistas.',
+    longDescription: 'Desenvolvido para simplificar a rotina corporativa, departamento pessoal e operações de negócios. Conta com cálculo automático de saldos de horas, extrato individual e por setor, fluxos de aprovação e relatórios auditáveis para fechamento e tomada de decisão.',
     category: 'Sistemas',
     imageUrl: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=1200&auto=format&fit=crop',
     technologies: ['Supabase', 'SQL', 'PostgreSQL', 'TypeScript', 'React', 'GitHub'],
