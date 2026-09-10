@@ -2,8 +2,8 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Project } from '../types';
 import { INITIAL_PROJECTS } from '../data/initialData';
 
-const LOCAL_STORAGE_PROJECTS_KEY = 'tech_portfolio_projects_v5';
-const LEGACY_STORAGE_PROJECTS_KEY = 'tech_portfolio_projects_v4';
+const LOCAL_STORAGE_PROJECTS_KEY = 'tech_portfolio_projects_v6';
+const LEGACY_STORAGE_PROJECTS_KEY = 'tech_portfolio_projects_v5';
 const LOCAL_STORAGE_SUPABASE_CONFIG_KEY = 'tech_portfolio_supabase_config_v2';
 
 export interface SupabaseSettings {
@@ -189,6 +189,21 @@ export function getLocalProjects(): Project[] {
               ...p,
               title: 'Serviços Empresariais',
               subtitle: p.subtitle || 'Gestão corporativa, jornadas de trabalho, controle de horas e processos internos'
+            };
+          }
+          if (
+            p.id === 'proj-5' || 
+            p.title === 'Trabalhos Pedagógicos para Professores' || 
+            p.title.toLowerCase().includes('pedagóg')
+          ) {
+            return {
+              ...p,
+              title: 'Desenvolvimento de CRMs e ERPs',
+              subtitle: 'Sistemas corporativos sob medida para automação de processos, clientes e gestão integrada',
+              description: 'Plataforma empresarial integrada para gestão de relacionamento com clientes (CRM) e planejamento de recursos empresariais (ERP), unificando vendas, finanças, estoque e atendimento.',
+              category: 'Sistemas' as const,
+              imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1200&auto=format&fit=crop',
+              technologies: ['React', 'TypeScript', 'Supabase', 'PostgreSQL', 'SQL', 'GitHub'],
             };
           }
           return p;

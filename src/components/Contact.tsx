@@ -13,7 +13,6 @@ import {
   Clock, 
   ArrowUpRight 
 } from 'lucide-react';
-import confetti from 'canvas-confetti';
 import { ContactFormData } from '../types';
 import { useTheme } from '../context/ThemeContext';
 
@@ -51,8 +50,6 @@ export const Contact: React.FC<ContactProps> = ({ initialService }) => {
     }
   }, [initialService]);
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const contactEmail = 'antonioestefanoprando@gmail.com';
@@ -121,17 +118,17 @@ export const Contact: React.FC<ContactProps> = ({ initialService }) => {
     // Only numbers
     const rawDigits = e.target.value.replace(/\D/g, '').slice(0, 11);
     
-    // Format nicely as (XX) XXXXX-XXXX or (XX) XXXX-XXXX
+    // Format strictly as (**)*****-****
     let formatted = rawDigits;
     if (rawDigits.length > 0) {
       if (rawDigits.length <= 2) {
         formatted = `(${rawDigits}`;
       } else if (rawDigits.length <= 6) {
-        formatted = `(${rawDigits.slice(0, 2)}) ${rawDigits.slice(2)}`;
+        formatted = `(${rawDigits.slice(0, 2)})${rawDigits.slice(2)}`;
       } else if (rawDigits.length <= 10) {
-        formatted = `(${rawDigits.slice(0, 2)}) ${rawDigits.slice(2, 6)}-${rawDigits.slice(6)}`;
+        formatted = `(${rawDigits.slice(0, 2)})${rawDigits.slice(2, 6)}-${rawDigits.slice(6)}`;
       } else {
-        formatted = `(${rawDigits.slice(0, 2)}) ${rawDigits.slice(2, 7)}-${rawDigits.slice(7, 11)}`;
+        formatted = `(${rawDigits.slice(0, 2)})${rawDigits.slice(2, 7)}-${rawDigits.slice(7, 11)}`;
       }
     }
 
@@ -152,17 +149,15 @@ export const Contact: React.FC<ContactProps> = ({ initialService }) => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const handleSendViaWhatsApp = () => {
     const nameError = validateName(formData.name);
-    const emailError = validateEmail(formData.email);
-    const phoneError = validatePhone(formData.phone);
+    const emailError = formData.email ? validateEmail(formData.email) : '';
+    const phoneError = formData.phone ? validatePhone(formData.phone) : '';
 
     setTouched({
       name: true,
-      email: true,
-      phone: true,
+      email: Boolean(formData.email),
+      phone: Boolean(formData.phone),
     });
 
     setFormErrors({
@@ -175,29 +170,6 @@ export const Contact: React.FC<ContactProps> = ({ initialService }) => {
       return;
     }
 
-    setIsSubmitting(true);
-
-    // Simulate reliable dispatch
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSubmitted(true);
-      confetti({
-        particleCount: 80,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#06B6D4', '#10B981', '#8B5CF6', '#38BDF8'],
-      });
-    }, 900);
-  };
-
-  const handleSendViaWhatsApp = () => {
-    const nameError = validateName(formData.name);
-    if (nameError) {
-      setTouched((prev) => ({ ...prev, name: true }));
-      setFormErrors((prev) => ({ ...prev, name: nameError }));
-      return;
-    }
-
     const text = encodeURIComponent(
       `Olá! Meu nome é ${formData.name.trim() || 'Visitante'}.\n` +
       `Gostaria de falar sobre um projeto de *${formData.projectType}*.\n` +
@@ -206,6 +178,11 @@ export const Contact: React.FC<ContactProps> = ({ initialService }) => {
       (formData.message ? `Mensagem: ${formData.message}` : '')
     );
     window.open(`https://wa.me/${whatsappNumber}?text=${text}`, '_blank');
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSendViaWhatsApp();
   };
 
   return (
@@ -404,52 +381,7 @@ export const Contact: React.FC<ContactProps> = ({ initialService }) => {
               ? 'bg-[#14102c] border-[#332a68] shadow-md' 
               : 'bg-white border-[#dedee2] shadow-sm'
           }`}>
-            
-            {isSubmitted ? (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="text-center py-10"
-              >
-                <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-500 mx-auto mb-4">
-                  <Check className="w-8 h-8" />
-                </div>
-                <h3 className={`text-2xl font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>Mensagem Recebida com Sucesso!</h3>
-                <p className={`text-sm max-w-md mx-auto mb-6 leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
-                  Obrigado pelo contato, <strong>{formData.name}</strong>. Analisarei os detalhes do seu projeto de {formData.projectType} e retornarei o mais rápido possível no e-mail <strong>{formData.email}</strong>.
-                </p>
-                <div className="flex flex-wrap items-center justify-center gap-4">
-                  <button
-                    onClick={() => {
-                      setIsSubmitted(false);
-                      setFormData({
-                        name: '',
-                        email: '',
-                        phone: '',
-                        subject: '',
-                        projectType: 'Desenvolvimento de Sites',
-                        message: '',
-                      });
-                    }}
-                    className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border ${
-                      isDark 
-                        ? 'text-[#bcbdff] bg-[#251951] border-[#332a68] hover:bg-[#332a68]' 
-                        : 'text-[#673de6] bg-purple-50 border-purple-200 hover:bg-purple-100'
-                    }`}
-                  >
-                    Enviar Outra Mensagem
-                  </button>
-                  <button
-                    onClick={handleSendViaWhatsApp}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-500"
-                  >
-                    <MessageSquare className="w-4 h-4" />
-                    <span>Confirmar via WhatsApp</span>
-                  </button>
-                </div>
-              </motion.div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   
                   {/* Name */}
@@ -518,7 +450,7 @@ export const Contact: React.FC<ContactProps> = ({ initialService }) => {
                     <input
                       type="tel"
                       inputMode="numeric"
-                      placeholder="(15) 99707-5641"
+                      placeholder="(**)*****-****"
                       value={formData.phone}
                       onChange={handlePhoneChange}
                       onBlur={() => handleBlur('phone')}
@@ -601,42 +533,17 @@ export const Contact: React.FC<ContactProps> = ({ initialService }) => {
                 </div>
 
                 {/* Submit Action Bar */}
-                <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
-                  <button
-                    type="button"
-                    onClick={handleSendViaWhatsApp}
-                    className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-semibold border transition-all ${
-                      isDark 
-                        ? 'text-emerald-300 bg-emerald-950/60 border-emerald-800/60 hover:bg-emerald-900/50' 
-                        : 'text-emerald-800 bg-emerald-50 border-emerald-200 hover:bg-emerald-100'
-                    }`}
-                  >
-                    <MessageSquare className="w-4 h-4" />
-                    <span>Enviar direto no WhatsApp</span>
-                  </button>
-
+                <div className="pt-3 flex flex-col sm:flex-row items-center justify-end">
                   <button
                     type="submit"
-                    disabled={isSubmitting}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3 rounded-xl font-bold text-white bg-[#673de6] hover:bg-[#542bc9] shadow-md hover:shadow-lg transition-all disabled:opacity-50"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-md hover:shadow-lg transition-all focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 cursor-pointer"
                   >
-                    {isSubmitting ? (
-                      <>
-                        <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                        <span>Enviando...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Send className="w-4 h-4" />
-                        <span>Enviar Mensagem</span>
-                      </>
-                    )}
+                    <MessageSquare className="w-5 h-5" />
+                    <span>Enviar direto no WhatsApp</span>
                   </button>
                 </div>
 
               </form>
-            )}
-
           </div>
 
         </div>
