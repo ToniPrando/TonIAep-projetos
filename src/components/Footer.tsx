@@ -3,6 +3,7 @@ import {
   ArrowUp, 
   Github, 
   Linkedin, 
+  Instagram,
   Mail, 
   Phone 
 } from 'lucide-react';
@@ -50,6 +51,17 @@ export const Footer: React.FC = () => {
               Desenvolvimento de software de alta performance, websites responsivos, aplicativos mobile e sistemas inteligentes potencializados por IA.
             </p>
             <div className="flex items-center gap-3">
+              <a
+                href="https://www.instagram.com/_toniaep_/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2.5 rounded-xl bg-[#14102c] hover:bg-[#251951] text-slate-400 hover:text-pink-400 border border-[#332a68] hover:border-pink-500/50 transition-colors"
+                aria-label="Instagram"
+                title="Seguir no Instagram (@_toniaep_)"
+                id="footer-instagram-btn"
+              >
+                <Instagram className="w-4 h-4" />
+              </a>
               <a
                 href="#"
                 onClick={(e) => e.preventDefault()}

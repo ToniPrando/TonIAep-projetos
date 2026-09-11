@@ -2,13 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { 
   Send, 
-  Mail, 
   MessageSquare, 
   Linkedin, 
   Github, 
+  Instagram,
   Phone, 
-  Check, 
-  Copy, 
   Sparkles, 
   Clock, 
   ArrowUpRight 
@@ -50,17 +48,8 @@ export const Contact: React.FC<ContactProps> = ({ initialService }) => {
     }
   }, [initialService]);
 
-  const [copiedField, setCopiedField] = useState<string | null>(null);
-
-  const contactEmail = 'antonioestefanoprando@gmail.com';
   const whatsappNumber = '5515997075641'; // (15)99707-5641
   const whatsappDisplay = '(15) 99707-5641';
-
-  const copyToClipboard = (text: string, fieldName: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedField(fieldName);
-    setTimeout(() => setCopiedField(null), 2500);
-  };
 
   // Validation functions
   const validateName = (name: string): string => {
@@ -281,51 +270,37 @@ export const Contact: React.FC<ContactProps> = ({ initialService }) => {
               </a>
             </div>
 
-            {/* Quick Email Card */}
-            <div className={`rounded-2xl p-6 backdrop-blur-md border ${
-              isDark ? 'bg-[#14102c] border-[#332a68]' : 'bg-white border-[#dedee2] shadow-sm'
-            }`}>
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#251951] border border-[#332a68] flex items-center justify-center text-[#bcbdff]">
-                    <Mail className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className={`text-xs font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>E-mail Profissional</div>
-                    <div className={`text-sm font-semibold font-mono ${isDark ? 'text-white' : 'text-slate-900'}`}>{contactEmail}</div>
-                  </div>
-                </div>
-                <button
-                  onClick={() => copyToClipboard(contactEmail, 'email')}
-                  className={`p-2 rounded-lg transition-colors ${
-                    isDark 
-                      ? 'bg-[#251951] hover:bg-[#332a68] text-slate-300 hover:text-white' 
-                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-950'
-                  }`}
-                  title="Copiar E-mail"
-                >
-                  {copiedField === 'email' ? (
-                    <Check className="w-4 h-4 text-emerald-500" />
-                  ) : (
-                    <Copy className="w-4 h-4" />
-                  )}
-                </button>
-              </div>
+            {/* Social Channels (Instagram Ativo, LinkedIn & GitHub) */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <a
-                href={`mailto:${contactEmail}`}
-                className="text-xs text-[#7b66ff] hover:text-[#9d99ff] flex items-center gap-1 font-semibold mt-2"
+                href="https://www.instagram.com/_toniaep_/"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Seguir no Instagram (@_toniaep_)"
+                id="contact-instagram-card"
+                className={`rounded-2xl p-4 flex flex-col justify-between transition-all group border ${
+                  isDark 
+                    ? 'bg-[#14102c] hover:bg-[#1f1638] border-[#332a68] hover:border-pink-500/60 shadow-sm' 
+                    : 'bg-white hover:bg-pink-50/40 border-[#dedee2] hover:border-pink-500/60 shadow-sm'
+                }`}
               >
-                <span>Abrir cliente de e-mail</span>
-                <ArrowUpRight className="w-3.5 h-3.5" />
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 flex items-center justify-center text-white shadow-sm group-hover:scale-110 transition-transform">
+                    <Instagram className="w-5 h-5" />
+                  </div>
+                  <ArrowUpRight className="w-4 h-4 text-pink-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                </div>
+                <div>
+                  <div className={`text-sm font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>Instagram</div>
+                  <div className="text-xs text-pink-500 font-mono font-medium truncate mt-0.5">@_toniaep_</div>
+                </div>
               </a>
-            </div>
 
-            {/* Social Channels (LinkedIn & GitHub - desvinculados) */}
-            <div className="grid grid-cols-2 gap-4">
               <a
                 href="#"
                 onClick={(e) => e.preventDefault()}
                 title="LinkedIn (Em breve)"
+                id="contact-linkedin-card"
                 className={`rounded-2xl p-4 flex flex-col justify-between transition-all group border cursor-default ${
                   isDark 
                     ? 'bg-[#14102c] hover:bg-[#1c183a] border-[#332a68] hover:border-[#7b66ff]/50' 
@@ -346,6 +321,7 @@ export const Contact: React.FC<ContactProps> = ({ initialService }) => {
                 href="#"
                 onClick={(e) => e.preventDefault()}
                 title="GitHub (Em breve)"
+                id="contact-github-card"
                 className={`rounded-2xl p-4 flex flex-col justify-between transition-all group border cursor-default ${
                   isDark 
                     ? 'bg-[#14102c] hover:bg-[#1c183a] border-[#332a68] hover:border-[#7b66ff]/50' 
